@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="payment-system.Api/payment-system.Api.csproj" />
+  <Project Path="payment-system.Application/payment-system.Application.csproj" />
+  <Project Path="payment-system.Domain/payment-system.Domain.csproj" />
+  <Project Path="payment-system.Infrastructure/payment-system.Infrastructure.csproj" />
+</Solution>
