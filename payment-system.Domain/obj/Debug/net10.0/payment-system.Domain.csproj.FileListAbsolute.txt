@@ -9,3 +9,4 @@
 /Users/floyd/Documents/xox/payment-system/payment-system.Domain/obj/Debug/net10.0/refint/payment-system.Domain.dll
 /Users/floyd/Documents/xox/payment-system/payment-system.Domain/obj/Debug/net10.0/payment-system.Domain.pdb
 /Users/floyd/Documents/xox/payment-system/payment-system.Domain/obj/Debug/net10.0/ref/payment-system.Domain.dll
+/Users/floyd/Documents/xox/payment-system/payment-system.Domain/obj/Debug/net10.0/payment-system.Domain.sourcelink.json

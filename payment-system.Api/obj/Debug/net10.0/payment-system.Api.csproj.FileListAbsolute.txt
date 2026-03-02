@@ -40,3 +40,4 @@
 /Users/floyd/Documents/xox/payment-system/payment-system.Api/obj/Debug/net10.0/payment-system.Api.pdb
 /Users/floyd/Documents/xox/payment-system/payment-system.Api/obj/Debug/net10.0/payment-system.Api.genruntimeconfig.cache
 /Users/floyd/Documents/xox/payment-system/payment-system.Api/obj/Debug/net10.0/ref/payment-system.Api.dll
+/Users/floyd/Documents/xox/payment-system/payment-system.Api/obj/Debug/net10.0/payment-system.Api.sourcelink.json

@@ -15,3 +15,4 @@
 /Users/floyd/Documents/xox/payment-system/payment-system.Infrastructure/obj/Debug/net10.0/refint/payment-system.Infrastructure.dll
 /Users/floyd/Documents/xox/payment-system/payment-system.Infrastructure/obj/Debug/net10.0/payment-system.Infrastructure.pdb
 /Users/floyd/Documents/xox/payment-system/payment-system.Infrastructure/obj/Debug/net10.0/ref/payment-system.Infrastructure.dll
+/Users/floyd/Documents/xox/payment-system/payment-system.Infrastructure/obj/Debug/net10.0/payment-system.Infrastructure.sourcelink.json
