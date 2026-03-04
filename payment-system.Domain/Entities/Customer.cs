@@ -6,13 +6,13 @@ using payment_system.Domain.Common;
 
 namespace payment_system.Domain.Entities
 {
-    public class Customer: BaseEntity
+    public class Customer : BaseEntity
     {
         public string Name { get; set; }
         public string Surname { get; set; }
         public string Email { get; set; }
         public string NationalId { get; set; }
         //navigation property (one-to-many) for accounts 
-        public ICollection<Account> Accounts { get; set; } = new List<Account>();
+        public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
     }
 }

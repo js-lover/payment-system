@@ -1,0 +1,42 @@
+## [ .NET - C# ]
+bin/
+obj/
+publish/
+out/
+*.exe
+*.dll
+*.pdb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## [ SQLite ]
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+## [ IDE - Visual Studio & VS Code ]
+.vs/
+.vscode/
+.idea/
+*.swp
+*.lut
+*.desktop
+.DS_Store
+
+## [ Secrets & Local Settings ]
+# to keep local settings and secrets private
+appsettings.Development.json
+usersecrets.json
+.env
+
+## [ OS Specific - macOS ]
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+Network Trash Folder
+Temporary Items
+.apdisk

@@ -16,3 +16,5 @@
 /Users/floyd/Documents/xox/payment-system/payment-system.Infrastructure/obj/Debug/net10.0/payment-system.Infrastructure.pdb
 /Users/floyd/Documents/xox/payment-system/payment-system.Infrastructure/obj/Debug/net10.0/ref/payment-system.Infrastructure.dll
 /Users/floyd/Documents/xox/payment-system/payment-system.Infrastructure/obj/Debug/net10.0/payment-system.Infrastructure.sourcelink.json
+/Users/floyd/Documents/xox/payment-system/payment-system.Infrastructure/bin/Debug/net10.0/payment-system.Infrastructure.runtimeconfig.json
+/Users/floyd/Documents/xox/payment-system/payment-system.Infrastructure/obj/Debug/net10.0/payment-system.Infrastructure.genruntimeconfig.cache
