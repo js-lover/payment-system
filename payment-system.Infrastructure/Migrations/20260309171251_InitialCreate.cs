@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace payment_system.Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -48,7 +50,7 @@ namespace payment_system.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Accounts", x => x.Id);
-                    table.CheckConstraint("CK_Account_AccountNumber_Format", "length([AccountNumber]) = 26 AND [AccountNumber] NOT GLOB '*[^0-9]*'");
+                    table.CheckConstraint("CK_Account_AccountNumber_Format", "length([AccountNumber]) = 26 AND [AccountNumber] GLOB 'TR[0-9]*'");
                     table.ForeignKey(
                         name: "FK_Accounts_Customers_CustomerId",
                         column: x => x.CustomerId,
@@ -96,6 +98,7 @@ namespace payment_system.Infrastructure.Migrations
                     TransactionType = table.Column<int>(type: "INTEGER", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TransactionDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Currency = table.Column<int>(type: "INTEGER", nullable: false),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
                     Description = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     ReferenceTransactionId = table.Column<Guid>(type: "TEXT", nullable: true),
@@ -124,6 +127,25 @@ namespace payment_system.Infrastructure.Migrations
                         column: x => x.ReferenceTransactionId,
                         principalTable: "Transactions",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.InsertData(
+                table: "Customers",
+                columns: new[] { "Id", "CreatedAt", "DeletedAt", "Email", "IsDeleted", "Name", "NationalId", "Surname", "UpdatedAt" },
+                values: new object[] { new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"), new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "floyd@example.com", false, "Floyd", "12345678901", "Pro", null });
+
+            migrationBuilder.InsertData(
+                table: "Accounts",
+                columns: new[] { "Id", "AccountNumber", "Balance", "CreatedAt", "Currency", "CustomerId", "DeletedAt", "IsDeleted", "UpdatedAt" },
+                values: new object[] { new Guid("b2c3d4e5-f6a7-4b5c-9d8e-1f2a3b4c5d6e"), "TR001234567890123456789012", 10000m, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "TRY", new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"), null, false, null });
+
+            migrationBuilder.InsertData(
+                table: "Transactions",
+                columns: new[] { "Id", "AccountId", "Amount", "CardId", "CreatedAt", "Currency", "DeletedAt", "Description", "ReferenceTransactionId", "Status", "TransactionDate", "TransactionType", "UpdatedAt" },
+                values: new object[,]
+                {
+                    { new Guid("c3d4e5f6-a7b8-4c5d-8e9f-2a3b4c5d6e7f"), new Guid("b2c3d4e5-f6a7-4b5c-9d8e-1f2a3b4c5d6e"), 500.00m, null, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, "Market Alışverişi", null, 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 1, null },
+                    { new Guid("d4e5f6a7-b8c9-4d5e-9f0a-3b4c5d6e7f8a"), new Guid("b2c3d4e5-f6a7-4b5c-9d8e-1f2a3b4c5d6e"), 100.00m, null, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, "Ürün İadesi", new Guid("c3d4e5f6-a7b8-4c5d-8e9f-2a3b4c5d6e7f"), 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 2, null }
                 });
 
             migrationBuilder.CreateIndex(

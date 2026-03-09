@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using payment_system.Api.Endpoints;
 using payment_system.Infrastructure.Persistence.Contexts; // reference to the DbContext
 
 
@@ -29,5 +30,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+app.MapTransactionEndpoints();
 
 app.Run();

@@ -16,16 +16,14 @@ namespace payment_system.Domain.Entities
         public Guid AccountId { get; set; }
         //the reason we use a nullable Guid for CardId is to account for transactions that may not involve a card
         public Guid? CardId { get; set; }
-
         //the reason we use a virtual property for Account is to enable lazy loading
         //this allows the related Account entity to be loaded from the database only when it is accessed
         public virtual Account Account { get; set; }
-
         public virtual Card? Card { get; set; }
-
         public TransactionType TransactionType { get; set; }
         public decimal Amount { get; set; }
         public DateTime TransactionDate { get; set; }
+        public Currency Currency { get; set; }
         public TransactionStatus Status { get; set; }
         public string? Description { get; set; }
         /// Reference to another transaction, if this transaction is related to one.

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using payment_system.Domain.Entities;
+using payment_system.Domain.Enums;
 
 
 namespace payment_system.Infrastructure.Persistence.Configurations
@@ -33,8 +34,9 @@ namespace payment_system.Infrastructure.Persistence.Configurations
             builder.HasIndex(x => x.AccountNumber).IsUnique();
 
 
+
             //checks if AccountNumber is in the correct format and length
-            builder.HasCheckConstraint("CK_Account_AccountNumber_Format", "length([AccountNumber]) = 26 AND [AccountNumber] NOT GLOB '*[^0-9]*'");
+            builder.HasCheckConstraint("CK_Account_AccountNumber_Format", "length([AccountNumber]) = 26 AND [AccountNumber] GLOB 'TR[0-9]*'");
 
             //balance
             builder.Property(x => x.Balance).HasPrecision(18, 2);

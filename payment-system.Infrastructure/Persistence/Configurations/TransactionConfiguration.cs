@@ -34,6 +34,10 @@ namespace payment_system.Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasColumnType("decimal(18,2)");
 
+            // Currency configuration
+            builder.Property(x => x.Currency)
+                .IsRequired();
+
             // TransactionDate configuration
             builder.Property(x => x.TransactionDate)
                 .IsRequired();
@@ -42,6 +46,8 @@ namespace payment_system.Infrastructure.Persistence.Configurations
             builder.Property(x => x.IsDeleted)
                 .IsRequired()
                 .HasDefaultValue(false);
+
+
 
             // Description configuration
             builder.Property(x => x.Description)
