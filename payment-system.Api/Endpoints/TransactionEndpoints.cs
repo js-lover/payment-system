@@ -3,7 +3,6 @@ using payment_system.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using payment_system.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
-using System.IO.Compression;
 
 namespace payment_system.Api.Endpoints
 {

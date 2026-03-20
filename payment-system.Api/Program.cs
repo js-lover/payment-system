@@ -32,5 +32,6 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.MapTransactionEndpoints();
+app.MapAccountEndpoints();
 
 app.Run();
