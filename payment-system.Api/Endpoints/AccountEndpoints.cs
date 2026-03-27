@@ -1,8 +1,8 @@
-using payment_system.Api.DTOs;
+using payment_system.Application.DTOs.Account;
+using payment_system.Application.DTOs.Transaction;
 using payment_system.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using payment_system.Domain.Entities;
-using Microsoft.Identity.Client;
 
 namespace payment_system.Api.Endpoints
 {

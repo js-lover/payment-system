@@ -1,6 +1,7 @@
 using payment_system.Domain.Enums;
 
-namespace payment_system.Api.DTOs
+
+namespace payment_system.Application.DTOs.Transaction
 {
 public class CreateTransactionRequest
     {
