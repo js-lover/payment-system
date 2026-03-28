@@ -1,26 +1,35 @@
 using Microsoft.EntityFrameworkCore;
 using payment_system.Api.Endpoints;
-using payment_system.Infrastructure.Persistence.Contexts; // reference to the DbContext
-
+using payment_system.Application.Repositories;
+using payment_system.Application.Services.Implementations;
+using payment_system.Application.Services.Interfaces;
+using payment_system.Infrastructure.Persistence.Contexts;
+using payment_system.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// ===== DATABASE CONTEXT =====
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    // Use SQLite database
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-
-    // Enable Lazy Loading
+    options.UseSqlite(
+        builder.Configuration.GetConnectionString("DefaultConnection"));
     options.UseLazyLoadingProxies();
 });
 
+// ===== DEPENDENCY INJECTION - REPOSITORIES =====
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+
+// ===== DEPENDENCY INJECTION - SERVICES =====
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+
+// ===== CONTROLLERS VE ENDPOINTS =====
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// ===== MIDDLEWARE =====
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -28,10 +37,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.MapControllers();
 
+// ===== ENDPOINT MAPPING =====
 app.MapTransactionEndpoints();
-app.MapAccountEndpoints();
 
 app.Run();

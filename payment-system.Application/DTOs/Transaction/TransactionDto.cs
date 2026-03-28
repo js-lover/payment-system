@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace payment_system.Application.DTOs.Transaction
 {
     //DTO for Transaction
@@ -5,11 +8,11 @@ namespace payment_system.Application.DTOs.Transaction
     {
         public Guid Id { get; set; }
         public decimal Amount { get; set; }
-        public string Currency { get; set; } = null!;
+        public string TransactionStatus { get; set; } = string.Empty;
+        public string TransactionType { get; set; } = string.Empty;
         public DateTime Date { get; set; }
-        public string TransactionStatus { get; set; } = null!;
-        public string TransactionType { get; set; } = null!;
-        public string Description { get; set; } = null!;
+        public string Description { get; set; } = string.Empty;
+        public string Currency { get; set; } = string.Empty;
 
         //self-referencing 
         public List<TransactionDto> Children { get; set; } = new();
