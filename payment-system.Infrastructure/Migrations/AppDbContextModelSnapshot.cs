@@ -170,6 +170,11 @@ namespace payment_system.Infrastructure.Migrations
                         .HasColumnType("TEXT")
                         .IsFixedLength();
 
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -181,7 +186,8 @@ namespace payment_system.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("IsDeleted = 0");
 
                     b.HasIndex("NationalId")
                         .IsUnique();
@@ -200,6 +206,7 @@ namespace payment_system.Infrastructure.Migrations
                             IsDeleted = false,
                             Name = "Floyd",
                             NationalId = "12345678901",
+                            PasswordHash = "seed_data_temporary_hash",
                             Surname = "Pro"
                         });
                 });

@@ -43,9 +43,11 @@ namespace payment_system.Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(150);
 
-            builder.HasIndex(x => x.Email).IsUnique();
+            builder.HasIndex(x => x.Email).HasFilter("IsDeleted = 0").IsUnique();
 
-
+            builder.Property(x => x.PasswordHash)
+                .IsRequired()
+                .HasMaxLength(256);
 
         }
     }

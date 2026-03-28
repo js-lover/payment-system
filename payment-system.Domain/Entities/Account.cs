@@ -9,7 +9,7 @@ namespace payment_system.Domain.Entities
 {
     public class Account : BaseEntity
     {
-        public string AccountNumber { get; set; }
+        public string AccountNumber { get; set; } = null!;
         //not double or float because we want to avoid precision issues with large numbers
         public decimal Balance { get; set; }
         //using enum for currency
@@ -18,7 +18,7 @@ namespace payment_system.Domain.Entities
         //customer entity foreign key 
         public Guid CustomerId { get; set; }
         //navigation property from customer
-        public virtual Customer Customer { get; set; }
+        public virtual Customer Customer { get; set; } = null!;
         //an account can have multiple cards
         public virtual ICollection<Card> Cards { get; set; } = new List<Card>();
 

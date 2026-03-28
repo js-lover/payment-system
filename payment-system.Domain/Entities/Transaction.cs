@@ -11,6 +11,8 @@ namespace payment_system.Domain.Entities
 {
     public class Transaction : BaseEntity
     {
+        //added constructor for creating transactions
+        public Transaction(){}
         //the reason we use a separate class for transactions is to keep track of all payment activities
         //account id is used to identify the user account associated with the transaction
         public Guid AccountId { get; set; }

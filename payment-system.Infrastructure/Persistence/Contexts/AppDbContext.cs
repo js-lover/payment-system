@@ -50,6 +50,7 @@ namespace payment_system.Infrastructure.Persistence.Contexts
                 Email = "floyd@example.com",
                 NationalId = "12345678901",
                 CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                PasswordHash = "seed_data_temporary_hash", // Temporary hash for seeding 
                 IsDeleted = false
             });
 

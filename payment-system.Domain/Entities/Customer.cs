@@ -8,10 +8,11 @@ namespace payment_system.Domain.Entities
 {
     public class Customer : BaseEntity
     {
-        public string Name { get; set; }
-        public string Surname { get; set; }
-        public string Email { get; set; }
-        public string NationalId { get; set; }
+        public string Name { get; set; } = null!;
+        public string Surname { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string PasswordHash { get; set; } = null!;
+        public string NationalId { get; set; } = null!;
         //navigation property (one-to-many) for accounts 
         public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
     }
