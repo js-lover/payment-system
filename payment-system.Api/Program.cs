@@ -17,9 +17,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 // ===== DEPENDENCY INJECTION - REPOSITORIES =====
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();           // ✅ YENİ
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
 // ===== DEPENDENCY INJECTION - SERVICES =====
+builder.Services.AddScoped<IAccountService, AccountService>();                // ✅ YENİ
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 // ===== CONTROLLERS VE ENDPOINTS =====
@@ -40,6 +42,7 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 // ===== ENDPOINT MAPPING =====
+app.MapAccountEndpoints();                                                      // ✅ YENİ
 app.MapTransactionEndpoints();
 
 app.Run();
