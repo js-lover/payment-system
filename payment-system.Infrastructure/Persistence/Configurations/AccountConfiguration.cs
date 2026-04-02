@@ -28,7 +28,7 @@ namespace payment_system.Infrastructure.Persistence.Configurations
 
             //account number has a fixed length and unique
             builder.Property(x => x.AccountNumber)
-                .HasMaxLength(26)
+                .HasMaxLength(20)
                 .IsFixedLength();
 
             builder.HasIndex(x => x.AccountNumber).IsUnique();
@@ -36,7 +36,9 @@ namespace payment_system.Infrastructure.Persistence.Configurations
 
 
             //checks if AccountNumber is in the correct format and length
-            builder.HasCheckConstraint("CK_Account_AccountNumber_Format", "length([AccountNumber]) = 26 AND [AccountNumber] GLOB 'TR[0-9]*'");
+            builder.HasCheckConstraint(
+                "CK_Account_AccountNumber_Format", 
+                "length([AccountNumber]) = 20 AND substr([AccountNumber], 1, 2) = 'TR' AND typeof([AccountNumber]) = 'text'");
 
             //balance
             builder.Property(x => x.Balance).HasPrecision(18, 2);

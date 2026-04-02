@@ -13,19 +13,34 @@ namespace payment_system.Application.Services.Interfaces
     /// </summary>
     public interface IAccountService
     {
+        // ===== READ OPERATIONS =====
+
+        /// <summary>
+        /// Tüm account'ları getir
+        /// </summary>
+        /// <returns>Account listesi veya hata</returns>
+        Task<Result<IEnumerable<AccountDto>>> GetAllAccountsAsync();
+
         /// <summary>
         /// Account'un detaylı bilgisini ve transaction'larını getir
         /// </summary>
         /// <param name="accountId">Account ID'si</param>
         /// <returns>Account detayları ve transaction'ları veya hata</returns>
-        Task<Result<AccountDetailsDto>> GetAccountDetailsWithTransactionsAsync(Guid accountId);
+        Task<Result<AccountDetailsDto>> GetAccountDetailsAsync(Guid accountId);
 
         /// <summary>
-        /// Tüm account'ları detayları ile getir
-        /// Her account'un transaction'larını da yükler
+        /// Account bakiyesini getir
         /// </summary>
-        /// <returns>Account listesi veya hata</returns>
-        Task<Result<IEnumerable<AccountDetailsDto>>> GetAllAccountsAsync();
+        /// <param name="accountId">Account ID'si</param>
+        /// <returns>Bakiye tutarı veya hata</returns>
+        Task<Result<decimal>> GetAccountBalanceAsync(Guid accountId);
+
+        /// <summary>
+        /// Customer ID'sine göre account'u getir (Tekil)
+        /// </summary>
+        /// <param name="customerId">Customer ID'si</param>
+        /// <returns>Account detayları veya hata</returns>
+        Task<Result<AccountDetailsDto>> GetAccountByCustomerIdAsync(Guid customerId);
 
         /// <summary>
         /// Belirli bakiye aralığındaki account'ları getir
@@ -34,5 +49,29 @@ namespace payment_system.Application.Services.Interfaces
         /// <param name="maxBalance">Maximum bakiye</param>
         /// <returns>Filtrelenmiş account listesi veya hata</returns>
         Task<Result<IEnumerable<AccountDetailsDto>>> GetAccountsByBalanceRangeAsync(decimal minBalance, decimal maxBalance);
+
+        // ===== WRITE OPERATIONS =====
+
+        /// <summary>
+        /// Yeni account oluştur
+        /// </summary>
+        /// <param name="request">Account oluşturma request'i</param>
+        /// <returns>Oluşturulan account veya hata</returns>
+        Task<Result<AccountDto>> CreateAccountAsync(CreateAccountRequest request);
+
+        /// <summary>
+        /// Account'u güncelle
+        /// </summary>
+        /// <param name="accountId">Account ID'si</param>
+        /// <param name="request">Güncelleme request'i</param>
+        /// <returns>Güncellenen account veya hata</returns>
+        Task<Result<AccountDto>> UpdateAccountAsync(Guid accountId, UpdateAccountRequest request);
+
+        /// <summary>
+        /// Account'u sil
+        /// </summary>
+        /// <param name="accountId">Account ID'si</param>
+        /// <returns>Başarı veya hata</returns>
+        Task<Result<bool>> DeleteAccountAsync(Guid accountId);
     }
 }
