@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using payment_system.Application.DTOs.Account;
 using payment_system.Domain.Entities;
 
 namespace payment_system.Application.Repositories
@@ -25,6 +26,13 @@ namespace payment_system.Application.Repositories
         /// <param name="customerId">Customer ID'si</param>
         /// <returns>Account entity veya null</returns>
         Task<Account?> GetByCustomerIdAsync(Guid customerId);
+
+        /// <summary>
+        /// Customer ID'sine göre tüm account'ları getir
+        /// </summary>
+        /// <param name="customerId">Customer ID'si</param>
+        /// <returns>Account listesi</returns>
+        Task<IEnumerable<Account>> GetAllByCustomerIdAsync(Guid customerId);
 
         /// <summary>
         /// Tüm account'ları getir

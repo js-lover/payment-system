@@ -31,6 +31,7 @@ namespace payment_system.Api.Extensions
         {
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
 
             return services;
         }
@@ -42,6 +43,7 @@ namespace payment_system.Api.Extensions
         {
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<ICustomerService, CustomerService>();
 
             return services;
         }

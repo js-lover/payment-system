@@ -98,25 +98,6 @@ namespace payment_system.Application.Services.Implementations
             }
         }
 
-        public async Task<Result<decimal>> GetAccountBalanceAsync(Guid accountId)
-        {
-            try
-            {
-                if (accountId == Guid.Empty)
-                    return Result<decimal>.Failure("Geçersiz account ID'si");
-
-                var account = await _accountRepository.GetByIdAsync(accountId);
-                if (account == null)
-                    return Result<decimal>.Failure("Account bulunamadı");
-
-                return Result<decimal>.Success(account.Balance);
-            }
-            catch (Exception ex)
-            {
-                return Result<decimal>.Failure($"Bakiye alınırken hata oluştu: {ex.Message}");
-            }
-        }
-
         public async Task<Result<AccountDetailsDto>> GetAccountByCustomerIdAsync(Guid customerId)
         {
             try
@@ -138,6 +119,59 @@ namespace payment_system.Application.Services.Implementations
                 return Result<AccountDetailsDto>.Failure($"Müşteri account'u alınırken hata oluştu: {ex.Message}");
             }
         }
+
+
+        /// <summary>
+        /// Müşteri ID'sine göre tüm hesapları getirir.
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <returns></returns>
+        public async Task<Result<IEnumerable<AccountDetailsDto>>> GetAccountsByCustomerIdAsync(Guid customerId)
+        {
+            try
+            {
+                if (customerId == Guid.Empty)
+                    return Result<IEnumerable<AccountDetailsDto>>.Failure("Geçersiz customer ID'si");
+
+                var accounts = await _accountRepository.GetAllByCustomerIdAsync(customerId);
+
+                var result = new List<AccountDetailsDto>();
+                foreach (var account in accounts)
+                {
+                    var transactions = await _transactionRepository.GetByAccountIdAsync(account.Id);
+                    result.Add(MapToAccountDetailsDto(account, transactions));
+                }
+
+                return Result<IEnumerable<AccountDetailsDto>>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                return Result<IEnumerable<AccountDetailsDto>>.Failure($"Müşteri account'ları alınırken hata oluştu: {ex.Message}");
+            }
+        }
+
+
+
+
+        public async Task<Result<decimal>> GetAccountBalanceAsync(Guid accountId)
+        {
+            try
+            {
+                if (accountId == Guid.Empty)
+                    return Result<decimal>.Failure("Geçersiz account ID'si");
+
+                var account = await _accountRepository.GetByIdAsync(accountId);
+                if (account == null)
+                    return Result<decimal>.Failure("Account bulunamadı");
+
+                return Result<decimal>.Success(account.Balance);
+            }
+            catch (Exception ex)
+            {
+                return Result<decimal>.Failure($"Bakiye alınırken hata oluştu: {ex.Message}");
+            }
+        }
+
 
         public async Task<Result<IEnumerable<AccountDetailsDto>>> GetAccountsByBalanceRangeAsync(decimal minBalance, decimal maxBalance)
         {
@@ -209,14 +243,14 @@ namespace payment_system.Application.Services.Implementations
         {
             // ✅ Format: TR + 18 sayısal karakter = 20 karakter
             // Constraint: length = 20 AND substr(..., 1, 2) = 'TR'
-            
+
             // Unique ID oluştur (Ticks + Random)
             var random = new System.Random();
             var uniqueNumber = $"{DateTime.UtcNow.Ticks}{random.Next(1000, 9999)}";
-            
+
             // İlk 18 karakteri al (garantili sayısal)
             var numberPart = uniqueNumber.Substring(0, 18);
-            
+
             // Format: TR + 18 sayı = 20 karakter
             return $"TR{numberPart}";
         }

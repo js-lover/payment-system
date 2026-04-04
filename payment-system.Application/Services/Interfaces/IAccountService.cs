@@ -43,6 +43,13 @@ namespace payment_system.Application.Services.Interfaces
         Task<Result<AccountDetailsDto>> GetAccountByCustomerIdAsync(Guid customerId);
 
         /// <summary>
+        /// Customer ID'sine göre account'ları getir (Çoklu)
+        /// </summary>
+        /// <param name="customerId">Customer ID'si</param>
+        /// <returns>Account detayları veya hata</returns>
+        Task<Result<IEnumerable<AccountDetailsDto>>> GetAccountsByCustomerIdAsync(Guid customerId);
+
+        /// <summary>
         /// Belirli bakiye aralığındaki account'ları getir
         /// </summary>
         /// <param name="minBalance">Minimum bakiye</param>

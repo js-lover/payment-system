@@ -43,6 +43,24 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
+        /// Customer ID'sine göre tüm account'ları getir
+        /// </summary>
+        /// <param name="customerId">Customer ID'si</param>
+        /// <returns>Account listesi</returns>
+        public async Task<IEnumerable<Account>> GetAllByCustomerIdAsync(Guid customerId)
+        {
+            if (customerId == Guid.Empty)
+                return Enumerable.Empty<Account>();
+
+            return await _db.Accounts
+                .Include(a => a.Customer)
+                .Where(a => a.CustomerId == customerId)
+                .ToListAsync();
+        }
+
+
+
+        /// <summary>
         /// Customer ID'sine göre account'u getir
         /// </summary>
         public async Task<Account?> GetByCustomerIdAsync(Guid customerId)
