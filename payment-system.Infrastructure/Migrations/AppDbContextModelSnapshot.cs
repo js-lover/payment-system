@@ -16,7 +16,7 @@ namespace payment_system.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Proxies:ChangeTracking", false)
                 .HasAnnotation("Proxies:CheckEquality", false)
                 .HasAnnotation("Proxies:LazyLoading", true);
@@ -29,7 +29,7 @@ namespace payment_system.Infrastructure.Migrations
 
                     b.Property<string>("AccountNumber")
                         .IsRequired()
-                        .HasMaxLength(26)
+                        .HasMaxLength(20)
                         .HasColumnType("TEXT")
                         .IsFixedLength();
 
@@ -53,6 +53,10 @@ namespace payment_system.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
@@ -65,19 +69,7 @@ namespace payment_system.Infrastructure.Migrations
 
                     b.ToTable("Accounts", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Account_AccountNumber_Format", "length([AccountNumber]) = 26 AND [AccountNumber] GLOB 'TR[0-9]*'");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("b2c3d4e5-f6a7-4b5c-9d8e-1f2a3b4c5d6e"),
-                            AccountNumber = "TR001234567890123456789012",
-                            Balance = 10000m,
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Currency = "TRY",
-                            CustomerId = new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"),
-                            IsDeleted = false
+                            t.HasCheckConstraint("CK_Account_AccountNumber_Format", "length([AccountNumber]) = 20 AND substr([AccountNumber], 1, 2) = 'TR' AND typeof([AccountNumber]) = 'text'");
                         });
                 });
 
@@ -148,6 +140,9 @@ namespace payment_system.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
@@ -175,6 +170,11 @@ namespace payment_system.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -196,19 +196,6 @@ namespace payment_system.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("CK_Customer_NationalId_Format", "length(NationalId) = 11 AND NationalId NOT GLOB '*[^0-9]*'");
                         });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"),
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "floyd@example.com",
-                            IsDeleted = false,
-                            Name = "Floyd",
-                            NationalId = "12345678901",
-                            PasswordHash = "seed_data_temporary_hash",
-                            Surname = "Pro"
-                        });
                 });
 
             modelBuilder.Entity("payment_system.Domain.Entities.Transaction", b =>
@@ -221,7 +208,8 @@ namespace payment_system.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid?>("CardId")
                         .HasColumnType("TEXT");
@@ -268,35 +256,6 @@ namespace payment_system.Infrastructure.Migrations
                     b.HasIndex("ReferenceTransactionId");
 
                     b.ToTable("Transactions", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("c3d4e5f6-a7b8-4c5d-8e9f-2a3b4c5d6e7f"),
-                            AccountId = new Guid("b2c3d4e5-f6a7-4b5c-9d8e-1f2a3b4c5d6e"),
-                            Amount = 500.00m,
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Currency = 0,
-                            Description = "Market Alışverişi",
-                            IsDeleted = false,
-                            Status = 1,
-                            TransactionDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            TransactionType = 1
-                        },
-                        new
-                        {
-                            Id = new Guid("d4e5f6a7-b8c9-4d5e-9f0a-3b4c5d6e7f8a"),
-                            AccountId = new Guid("b2c3d4e5-f6a7-4b5c-9d8e-1f2a3b4c5d6e"),
-                            Amount = 100.00m,
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Currency = 0,
-                            Description = "Ürün İadesi",
-                            IsDeleted = false,
-                            ReferenceTransactionId = new Guid("c3d4e5f6-a7b8-4c5d-8e9f-2a3b4c5d6e7f"),
-                            Status = 1,
-                            TransactionDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            TransactionType = 2
-                        });
                 });
 
             modelBuilder.Entity("payment_system.Domain.Entities.Account", b =>

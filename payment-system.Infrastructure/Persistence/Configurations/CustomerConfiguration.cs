@@ -18,6 +18,14 @@ namespace payment_system.Infrastructure.Persistence.Configurations
             //defining primary key
             builder.HasKey(x => x.Id);
 
+            //foreign key for user one user one customer
+            builder.HasOne<User>()
+                .WithOne()
+                .HasForeignKey<Customer>(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+
             // configurating columns 
             builder.Property(x => x.Name)
                 .IsRequired()
@@ -33,11 +41,11 @@ namespace payment_system.Infrastructure.Persistence.Configurations
                 .IsFixedLength();
 
             //checks if NationalId is in the correct format
-            builder.HasCheckConstraint("CK_Customer_NationalId_Format", "length(NationalId) = 11 AND NationalId NOT GLOB '*[^0-9]*'");
-
-            builder.HasIndex(x => x.NationalId).IsUnique();
-
-
+            builder.ToTable("Customers", t =>
+            {
+                t.HasCheckConstraint("CK_Customer_NationalId_Format", "length(NationalId) = 11 AND NationalId NOT GLOB '*[^0-9]*'");
+            });
+            builder.HasIndex(x => x.NationalId).HasFilter("IsDeleted = 0").IsUnique();
 
             builder.Property(x => x.Email)
                 .IsRequired()
@@ -48,6 +56,13 @@ namespace payment_system.Infrastructure.Persistence.Configurations
             builder.Property(x => x.PasswordHash)
                 .IsRequired()
                 .HasMaxLength(256);
+
+            builder.Property(x => x.PhoneNumber)
+                .IsRequired()
+                .HasMaxLength(20);
+
+            builder.Property(x => x.DateOfBirth)
+                .IsRequired();
 
         }
     }

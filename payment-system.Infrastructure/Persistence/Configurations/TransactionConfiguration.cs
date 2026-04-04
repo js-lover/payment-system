@@ -20,7 +20,8 @@ namespace payment_system.Infrastructure.Persistence.Configurations
             //transaction is associated with an account
             builder.HasOne(x => x.Account)
                 .WithMany(x => x.Transactions)
-                .HasForeignKey(x => x.AccountId);
+                .HasForeignKey(x => x.AccountId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             //transaction is associated with a card
             builder.HasOne(x => x.Card)
@@ -32,7 +33,7 @@ namespace payment_system.Infrastructure.Persistence.Configurations
             // Amount configuration
             builder.Property(x => x.Amount)
                 .IsRequired()
-                .HasColumnType("decimal(18,2)");
+                .HasPrecision(18, 2);
 
             // Currency configuration
             builder.Property(x => x.Currency)

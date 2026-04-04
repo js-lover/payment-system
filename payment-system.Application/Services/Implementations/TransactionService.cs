@@ -13,154 +13,321 @@ namespace payment_system.Application.Services.Implementations
 {
     /// <summary>
     /// Transaction hizmetinin concrete implementasyonu
-    /// Tüm transaction operasyonlarını gerçekleştirir
+    /// İş mantığını içerir - validasyonlar, hesaplamalar vb
+    /// Repository'ler sadece veri erişimi için kullanılır
     /// </summary>
     public class TransactionService : ITransactionService
     {
-        private readonly ITransactionRepository _repository;
+        private readonly IAccountRepository _accountRepository;
+        private readonly ITransactionRepository _transactionRepository;
 
         /// <summary>
-        /// Constructor - Dependency Injection aracılığıyla Repository injekte edilir
+        /// Constructor - Dependency Injection aracılığıyla Repository'ler injekte edilir
         /// </summary>
-        /// <param name="repository">Transaction repository</param>
-        public TransactionService(ITransactionRepository repository)
+        public TransactionService(
+            IAccountRepository accountRepository,
+            ITransactionRepository transactionRepository)
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _accountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
+            _transactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
         }
 
         /// <summary>
-        /// Yeni transaction oluştur - validasyonlar yapıldıktan sonra
+        /// Yeni transaction oluştur - İş mantığı burada!
         /// </summary>
         public async Task<Result<TransactionDto>> CreateTransactionAsync(CreateTransactionRequest request)
         {
-            // ===== STEP 1: TEMEL VALIDASYONLAR =====
+            // ===== İŞ MANTTIĞI: TEMEL VALIDASYONLAR =====
             
-            // Amount kontrolü
             if (request.Amount <= 0)
                 return Result<TransactionDto>.Failure(
-                    "Amount must be greater than zero.", 
+                    "Amount must be greater than zero.",
                     400);
 
-            // Account var mı kontrolü
-            var account = await _repository.GetAccountByIdAsync(request.AccountId);
+            // ===== İŞ MANTTIĞI: ACCOUNT KONTROL =====
+            
+            var account = await _accountRepository.GetByIdAsync(request.AccountId);
             if (account == null)
                 return Result<TransactionDto>.Failure(
-                    "Account not found.", 
+                    "Account not found.",
                     404);
 
-            // ===== STEP 2: İŞLEM TİPİNE GÖRE VALIDASYON =====
-            
-            // REFUND işleminin validasyonu
-            if (request.TransactionType == TransactionType.Refund)
-            {
-                var (refundValidation, referenceTransaction) = 
-                    await ValidateRefundTransactionAsync(request, account);
-                
-                if (!refundValidation.IsSuccess)
-                    return refundValidation;
-            }
+            // ===== İŞ MANTTIĞI: TRANSACTION TİPİNE GÖRE KONTROL =====
 
-            // SALE işleminin validasyonu ve bakiye güncelleme
-            if (request.TransactionType == TransactionType.Sale)
+            switch (request.TransactionType)
             {
-                if (account.Balance < request.Amount)
+                case TransactionType.Sale:
+                    return await ProcessSaleTransactionAsync(request, account);
+
+                case TransactionType.Refund:
+                    return await ProcessRefundTransactionAsync(request, account);
+
+                default:
                     return Result<TransactionDto>.Failure(
-                        "Insufficient balance for sale.", 
+                        $"Unknown transaction type: {request.TransactionType}",
                         400);
-
-                // Bakiyeyi düş
-                account.Balance -= request.Amount;
             }
+        }
 
-            // ===== STEP 3: TRANSACTION OLUŞTUR =====
+        /// <summary>
+        /// SALE transaction işlemi - İş mantığı
+        /// Bakiyeyi düş, transaction oluştur, kaydet
+        /// </summary>
+        private async Task<Result<TransactionDto>> ProcessSaleTransactionAsync(
+            CreateTransactionRequest request,
+            Account account)
+        {
+            // ===== İŞ MANTTIĞI: BAKIYE KONTROLÜ =====
+            
+            if (account.Balance < request.Amount)
+                return Result<TransactionDto>.Failure(
+                    $"Insufficient balance. Available: {account.Balance}, Required: {request.Amount}",
+                    400);
+
+            // ===== İŞ MANTTIĞI: BAKIYE GÜNCELLEME =====
+            
+            account.Balance -= request.Amount;
+
+            // ===== İŞ MANTTIĞI: TRANSACTION OLUŞTURMA =====
+            
             var transaction = new Transaction
             {
-                AccountId = request.AccountId,
                 Id = Guid.NewGuid(),
+                AccountId = request.AccountId,
                 Amount = request.Amount,
-                Description = request.Description,
                 Currency = request.Currency,
                 TransactionType = request.TransactionType,
-                ReferenceTransactionId = request.ReferenceTransactionId,
+                Description = request.Description,
                 TransactionDate = DateTime.UtcNow,
-                Status = TransactionStatus.Success
+                Status = TransactionStatus.Success,
+                ReferenceTransactionId = null
             };
 
-            // ===== STEP 4: VERITABANINA KAYDET =====
-            await _repository.AddTransactionAsync(transaction);
-            await _repository.SaveChangesAsync();
-
-            // ===== STEP 5: RESPONSE DTO'SU OLUŞTUR =====
-            var dto = MapToDto(transaction);
+            // ===== İŞ MANTTIĞI: VERITABANINA KAYDET =====
             
+            await _transactionRepository.AddAsync(transaction);
+            await _accountRepository.UpdateAsync(account);
+            await _transactionRepository.SaveChangesAsync();
+
             return Result<TransactionDto>.Success(
-                dto, 
-                "Transaction created successfully", 
+                MapToDto(transaction),
+                "Sale transaction created successfully",
                 201);
         }
 
         /// <summary>
-        /// Tüm transaction'ları parent-child ilişkisi ile getir
+        /// REFUND transaction işlemi - İş mantığı
+        /// Refund validasyonu, bakiye geri yükleme, child transaction oluşturma
         /// </summary>
-        public async Task<Result<IEnumerable<TransactionDto>>> GetAllTransactionsAsync()
-        {
-            var transactions = await _repository.GetAllTransactionsAsync();
-            var result = transactions.Select(MapToDto).ToList();
-            
-            return Result<IEnumerable<TransactionDto>>.Success(result);
-        }
-
-        /// <summary>
-        /// REFUND transaction'ının tüm validasyonlarını yap
-        /// Tuple döndürür: (ValidationResult, ReferenceTransaction)
-        /// </summary>
-        private async Task<(Result<TransactionDto>, Transaction?)> ValidateRefundTransactionAsync(
-            CreateTransactionRequest request, 
+        private async Task<Result<TransactionDto>> ProcessRefundTransactionAsync(
+            CreateTransactionRequest request,
             Account account)
         {
-            // Reference transaction ID gerekli mi?
+            // ===== İŞ MANTTIĞI: REFUND VALIDASYONLARI =====
+            
+            // Reference transaction gerekli
             if (!request.ReferenceTransactionId.HasValue)
-                return (Result<TransactionDto>.Failure(
+                return Result<TransactionDto>.Failure(
                     "Refund transactions must reference an existing transaction.",
-                    400), null);
+                    400);
 
             // Reference transaction var mı?
-            var referenceTransaction = await _repository.GetTransactionByIdAsync(
+            var referenceTransaction = await _transactionRepository.GetByIdAsync(
                 request.ReferenceTransactionId.Value);
 
             if (referenceTransaction == null)
-                return (Result<TransactionDto>.Failure(
+                return Result<TransactionDto>.Failure(
                     "Invalid reference transaction.",
-                    400), null);
+                    404);
 
             // Reference transaction aynı account'a mı ait?
             if (referenceTransaction.AccountId != request.AccountId)
-                return (Result<TransactionDto>.Failure(
+                return Result<TransactionDto>.Failure(
                     "Cannot refund a transaction from another account.",
-                    400), null);
+                    400);
 
-            // Reference transaction SALE mi?
+            // Reference transaction SALE mı?
             if (referenceTransaction.TransactionType != TransactionType.Sale)
-                return (Result<TransactionDto>.Failure(
-                    "Only sales transactions can be refunded.",
-                    400), null);
+                return Result<TransactionDto>.Failure(
+                    "Only sale transactions can be refunded.",
+                    400);
 
-            // Toplam refund amount orijinal amount'ı geçmiş mi?
-            var totalRefundAmount = referenceTransaction.ChildTransactions?.Sum(x => x.Amount) ?? 0;
-            if (totalRefundAmount + request.Amount > referenceTransaction.Amount)
-                return (Result<TransactionDto>.Failure(
-                    "Refund amount exceeds original transaction amount.",
-                    400), null);
-
-            // Bakiyeyi geri yükle
-            account.Balance += request.Amount;
+            // ===== İŞ MANTTIĞI: TOPLAM REFUND KONTROLÜ =====
             
-            return (Result<TransactionDto>.Success(null!), referenceTransaction);
+            var totalRefundAmount = referenceTransaction.ChildTransactions?
+                .Sum(x => x.Amount) ?? 0;
+
+            if (totalRefundAmount + request.Amount > referenceTransaction.Amount)
+                return Result<TransactionDto>.Failure(
+                    $"Refund amount exceeds available amount. " +
+                    $"Available: {referenceTransaction.Amount - totalRefundAmount}, " +
+                    $"Requested: {request.Amount}",
+                    400);
+
+            // ===== İŞ MANTTIĞI: BAKIYE GERI YÜKLEME =====
+            
+            account.Balance += request.Amount;
+
+            // ===== İŞ MANTTIĞI: REFUND TRANSACTION OLUŞTURMA =====
+            
+            var refundTransaction = new Transaction
+            {
+                Id = Guid.NewGuid(),
+                AccountId = request.AccountId,
+                Amount = request.Amount,
+                Currency = request.Currency,
+                TransactionType = request.TransactionType,
+                Description = request.Description,
+                TransactionDate = DateTime.UtcNow,
+                Status = TransactionStatus.Success,
+                ReferenceTransactionId = referenceTransaction.Id  // ← Parent'a referans
+            };
+
+            // ===== İŞ MANTTIĞI: VERITABANINA KAYDET =====
+            
+            await _transactionRepository.AddAsync(refundTransaction);
+            await _accountRepository.UpdateAsync(account);
+            await _transactionRepository.SaveChangesAsync();
+
+            return Result<TransactionDto>.Success(
+                MapToDto(refundTransaction),
+                "Refund transaction created successfully",
+                201);
         }
 
         /// <summary>
-        /// Transaction entity'sini DTO'ya dönüştür
-        /// Recursive olarak child transaction'ları da dönüştürür
+        /// PURCHASE transaction işlemi - İş mantığı
+        /// Bakiyeyi arttır
+        /// </summary>
+        private async Task<Result<TransactionDto>> ProcessPurchaseTransactionAsync(
+            CreateTransactionRequest request,
+            Account account)
+        {
+            // ===== İŞ MANTTIĞI: BAKIYE GÜNCELLEME =====
+            
+            account.Balance += request.Amount;
+
+            // ===== İŞ MANTTIĞI: TRANSACTION OLUŞTURMA =====
+            
+            var transaction = new Transaction
+            {
+                Id = Guid.NewGuid(),
+                AccountId = request.AccountId,
+                Amount = request.Amount,
+                Currency = request.Currency,
+                TransactionType = request.TransactionType,
+                Description = request.Description,
+                TransactionDate = DateTime.UtcNow,
+                Status = TransactionStatus.Success,
+                ReferenceTransactionId = null
+            };
+
+            // ===== İŞ MANTTIĞI: VERITABANINA KAYDET =====
+            
+            await _transactionRepository.AddAsync(transaction);
+            await _accountRepository.UpdateAsync(account);
+            await _transactionRepository.SaveChangesAsync();
+
+            return Result<TransactionDto>.Success(
+                MapToDto(transaction),
+                "Purchase transaction created successfully",
+                201);
+        }
+
+        /// <summary>
+        /// Tüm transaction'ları getir - Basit veri erişimi
+        /// </summary>
+        public async Task<Result<IEnumerable<TransactionDto>>> GetAllTransactionsAsync()
+        {
+            // ===== Basit veri erişimi - İş mantığı yok =====
+            
+            var transactions = await _transactionRepository.GetAllAsync();
+            var dtos = transactions.Select(MapToDto).ToList();
+
+            return Result<IEnumerable<TransactionDto>>.Success(dtos);
+        }
+
+        /// <summary>
+        /// Belirli account'a ait transaction'ları getir
+        /// </summary>
+        public async Task<Result<IEnumerable<TransactionDto>>> GetTransactionsByAccountIdAsync(Guid accountId)
+        {
+            // ===== İŞ MANTTIĞI: VALIDASYON =====
+            
+            if (accountId == Guid.Empty)
+                return Result<IEnumerable<TransactionDto>>.Failure(
+                    "Invalid account ID",
+                    400);
+
+            // ===== Account var mı kontrol et =====
+            
+            var account = await _accountRepository.GetByIdAsync(accountId);
+            if (account == null)
+                return Result<IEnumerable<TransactionDto>>.Failure(
+                    "Account not found",
+                    404);
+
+            // ===== Veri erişimi =====
+            
+            var transactions = await _transactionRepository.GetByAccountIdAsync(accountId);
+            var dtos = transactions.Select(MapToDto).ToList();
+
+            return Result<IEnumerable<TransactionDto>>.Success(dtos);
+        }
+
+        /// <summary>
+        /// Belirli tarih aralığında transaction'ları getir
+        /// </summary>
+        public async Task<Result<IEnumerable<TransactionDto>>> GetTransactionsByDateRangeAsync(
+            DateTime startDate,
+            DateTime endDate)
+        {
+            // ===== İŞ MANTTIĞI: VALIDASYON =====
+            
+            if (startDate > endDate)
+                return Result<IEnumerable<TransactionDto>>.Failure(
+                    "Start date cannot be greater than end date",
+                    400);
+
+            // ===== Veri erişimi =====
+            
+            var transactions = await _transactionRepository.GetByDateRangeAsync(startDate, endDate);
+            var dtos = transactions.Select(MapToDto).ToList();
+
+            return Result<IEnumerable<TransactionDto>>.Success(dtos);
+        }
+
+        /// <summary>
+        /// Belirli transaction tipine göre transaction'ları getir
+        /// </summary>
+        public async Task<Result<IEnumerable<TransactionDto>>> GetTransactionsByTypeAsync(string transactionType)
+        {
+            // ===== İŞ MANTTIĞI: VALIDASYON =====
+            
+            if (string.IsNullOrWhiteSpace(transactionType))
+                return Result<IEnumerable<TransactionDto>>.Failure(
+                    "Transaction type cannot be empty",
+                    400);
+
+            // ===== Enum dönüşümü kontrolü =====
+            
+            if (!Enum.TryParse<TransactionType>(transactionType, ignoreCase: true, out _))
+                return Result<IEnumerable<TransactionDto>>.Failure(
+                    $"Invalid transaction type: {transactionType}",
+                    400);
+
+            // ===== Veri erişimi =====
+            
+            var transactions = await _transactionRepository.GetByTransactionTypeAsync(transactionType);
+            var dtos = transactions.Select(MapToDto).ToList();
+
+            return Result<IEnumerable<TransactionDto>>.Success(dtos);
+        }
+
+        // ===== HELPER METHODS =====
+
+        /// <summary>
+        /// Helper: Entity'yi DTO'ya dönüştür
         /// </summary>
         private TransactionDto MapToDto(Transaction transaction)
         {

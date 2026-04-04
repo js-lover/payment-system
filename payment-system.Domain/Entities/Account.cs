@@ -9,11 +9,12 @@ namespace payment_system.Domain.Entities
 {
     public class Account : BaseEntity
     {
+        public string Name { get; set; } = null!;
         public string AccountNumber { get; set; } = null!;
         //not double or float because we want to avoid precision issues with large numbers
         public decimal Balance { get; set; }
         //using enum for currency
-        public Currency Currency { get; set; }
+        public Currency Currency { get; set; } 
 
         //customer entity foreign key 
         public Guid CustomerId { get; set; }
