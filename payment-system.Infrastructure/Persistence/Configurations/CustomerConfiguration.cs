@@ -19,12 +19,10 @@ namespace payment_system.Infrastructure.Persistence.Configurations
             builder.HasKey(x => x.Id);
 
             //foreign key for user one user one customer
-            builder.HasOne<User>()
-                .WithOne()
-                .HasForeignKey<Customer>(x => x.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-
+           builder.HasOne(c => c.User)
+               .WithOne(u => u.Customer)
+               .HasForeignKey<Customer>(c => c.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
 
             // configurating columns 
             builder.Property(x => x.Name)
@@ -47,15 +45,8 @@ namespace payment_system.Infrastructure.Persistence.Configurations
             });
             builder.HasIndex(x => x.NationalId).HasFilter("IsDeleted = 0").IsUnique();
 
-            builder.Property(x => x.Email)
-                .IsRequired()
-                .HasMaxLength(150);
-
-            builder.HasIndex(x => x.Email).HasFilter("IsDeleted = 0").IsUnique();
-
-            builder.Property(x => x.PasswordHash)
-                .IsRequired()
-                .HasMaxLength(256);
+         
+            
 
             builder.Property(x => x.PhoneNumber)
                 .IsRequired()

@@ -11,8 +11,8 @@ using payment_system.Infrastructure.Persistence.Contexts;
 namespace payment_system.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260403172508_AddDateOfBirthToCustomer")]
-    partial class AddDateOfBirthToCustomer
+    [Migration("20260409115645_UpdateUserRepositoryEmailValidation")]
+    partial class UpdateUserRepositoryEmailValidation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -149,11 +149,6 @@ namespace payment_system.Infrastructure.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("TEXT");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
@@ -168,11 +163,6 @@ namespace payment_system.Infrastructure.Migrations
                         .HasColumnType("TEXT")
                         .IsFixedLength();
 
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -186,13 +176,16 @@ namespace payment_system.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
+                    b.HasIndex("NationalId")
                         .IsUnique()
                         .HasFilter("IsDeleted = 0");
 
-                    b.HasIndex("NationalId")
+                    b.HasIndex("UserId")
                         .IsUnique();
 
                     b.ToTable("Customers", null, t =>
@@ -261,6 +254,46 @@ namespace payment_system.Infrastructure.Migrations
                     b.ToTable("Transactions", (string)null);
                 });
 
+            modelBuilder.Entity("payment_system.Domain.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasFilter("IsDeleted = 0");
+
+                    b.ToTable("Users", (string)null);
+                });
+
             modelBuilder.Entity("payment_system.Domain.Entities.Account", b =>
                 {
                     b.HasOne("payment_system.Domain.Entities.Customer", "Customer")
@@ -281,6 +314,17 @@ namespace payment_system.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("payment_system.Domain.Entities.Customer", b =>
+                {
+                    b.HasOne("payment_system.Domain.Entities.User", "User")
+                        .WithOne("Customer")
+                        .HasForeignKey("payment_system.Domain.Entities.Customer", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("payment_system.Domain.Entities.Transaction", b =>
@@ -327,6 +371,11 @@ namespace payment_system.Infrastructure.Migrations
             modelBuilder.Entity("payment_system.Domain.Entities.Transaction", b =>
                 {
                     b.Navigation("ChildTransactions");
+                });
+
+            modelBuilder.Entity("payment_system.Domain.Entities.User", b =>
+                {
+                    b.Navigation("Customer");
                 });
 #pragma warning restore 612, 618
         }
