@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using payment_system.Application.DTOs.Account;
 
@@ -8,6 +9,7 @@ namespace payment_system.Api.Controllers
         /// <summary>
         /// Tüm account'ları getir
         /// </summary>
+        [Authorize]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

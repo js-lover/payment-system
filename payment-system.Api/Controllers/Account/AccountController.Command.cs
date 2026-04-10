@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using payment_system.Application.DTOs.Account;
 
 namespace payment_system.Api.Controllers
@@ -9,6 +10,7 @@ namespace payment_system.Api.Controllers
         /// Yeni account oluştur
         /// </summary>
         [HttpPost]
+        [Authorize]  // ✅ GÜVENLIK: Sadece kimliği doğrulanmış kullanıcılar oluşturabilir
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<AccountDto>> Create([FromBody] CreateAccountRequest request)
@@ -24,6 +26,7 @@ namespace payment_system.Api.Controllers
         /// Account'u güncelle
         /// </summary>
         [HttpPut("{accountId}")]
+        [Authorize]  // ✅ GÜVENLIK: Sadece kimliği doğrulanmış kullanıcılar güncelleyebilir
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -40,6 +43,7 @@ namespace payment_system.Api.Controllers
         /// Account'u sil
         /// </summary>
         [HttpDelete("{accountId}")]
+        [Authorize]  // ✅ GÜVENLIK: Sadece kimliği doğrulanmış kullanıcılar silebilir
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(Guid accountId)

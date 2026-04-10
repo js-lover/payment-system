@@ -10,8 +10,9 @@ namespace payment_system.Application.DTOs.Customer
         public string Surname { get; set; } = string.Empty;
         public string NationalId { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public List<AccountDto> Accounts { get; set; } = new();
+        public string PhoneNumber { get; set; } = string.Empty;
         public DateTime DateOfBirth { get; set; } = DateTime.MinValue;
+        public List<AccountDto> Accounts { get; set; } = new();
+
     }
 }

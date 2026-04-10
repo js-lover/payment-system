@@ -1,0 +1,97 @@
+@baseUrl = http://localhost:5190
+
+### =========================================
+### CUSTOMER SERVICE TEST SUITE
+### "User-First" Mimari Testi
+### =========================================
+
+### TEST 1: Başarılı Müşteri Oluşturma
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "name": "Ahmet",
+  "surname": "Yılmaz",
+  "email": "ahmet.yilmaz@example.com",
+  "passwordHash": "SecurePassword123!@#",
+  "nationalId": "12345678901",
+  "phoneNumber": "+905551234567",
+  "dateOfBirth": "1990-01-15"
+}
+
+### TEST 2: Email Zaten Kayıtlı (Hata Beklenir)
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "name": "Mehmet",
+  "surname": "Demir",
+  "email": "ahmet.yilmaz@example.com",
+  "passwordHash": "AnotherPassword123!@#",
+  "nationalId": "98765432109",
+  "phoneNumber": "+905559876543",
+  "dateOfBirth": "1995-05-20"
+}
+
+### TEST 3: Email Büyük Harf ile (Case-Insensitive Kontrol)
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "name": "Zeynep",
+  "surname": "Kara",
+  "email": "AHMET.YILMAZ@EXAMPLE.COM",
+  "passwordHash": "ThirdPassword123!@#",
+  "nationalId": "11111111111",
+  "phoneNumber": "+905553333333",
+  "dateOfBirth": "1988-03-10"
+}
+
+### TEST 4: NationalId Zaten Kayıtlı (Hata Beklenir)
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "name": "Fatih",
+  "surname": "Arslan",
+  "email": "fatih.arslan@example.com",
+  "passwordHash": "FourthPassword123!@#",
+  "nationalId": "12345678901",
+  "phoneNumber": "+905554444444",
+  "dateOfBirth": "1992-07-25"
+}
+
+### TEST 5: Boş Email (Validasyon Hatası)
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "name": "Ali",
+  "surname": "Veli",
+  "email": "",
+  "passwordHash": "FifthPassword123!@#",
+  "nationalId": "22222222222",
+  "phoneNumber": "+905555555555",
+  "dateOfBirth": "1991-11-05"
+}
+
+### TEST 6: Boş Şifre (Validasyon Hatası)
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "name": "Selin",
+  "surname": "Erol",
+  "email": "selin.erol@example.com",
+  "passwordHash": "",
+  "nationalId": "33333333333",
+  "phoneNumber": "+905556666666",
+  "dateOfBirth": "1993-09-14"
+}
+
+### TEST 7: Tüm Müşterileri Getir
+GET {{baseUrl}}/api/customers
+
+### TEST 8: Müşteri ID ile Getir (İlk oluşturduğumuzun ID'si ile test et)
+GET {{baseUrl}}/api/customers/{customerId}
+

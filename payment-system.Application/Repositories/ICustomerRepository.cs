@@ -31,6 +31,13 @@ namespace payment_system.Application.Repositories
         /// Get Customer by NationalId
         /// </summary>
         Task<Customer> GetCustomerByNationalIdAsync(string nationalId);
+
+        /// <summary>
+        /// Get Customer by Email
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        Task<Customer> GetCustomerByEmailAsync(string email);
         
 
         //======= DELETE Operations==========

@@ -53,6 +53,15 @@ namespace payment_system.Infrastructure.Repositories
 
             return await _db.Customers.FindAsync(id);
         }
+        
+        public async Task<Customer> GetCustomerByEmailAsync(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+                throw new ArgumentException("Invalid email.", nameof(email));
+
+            return await _db.Customers.Include(c => c.User).FirstOrDefaultAsync(x => x.User.Email == email);
+        }
+
 
         /// <summary>
         /// Get all customers

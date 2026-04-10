@@ -6,20 +6,39 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace payment_system.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialIdentityRefactor : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "User",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Role = table.Column<int>(type: "INTEGER", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: false),
+                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Customers",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     Surname = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "TEXT", nullable: false),
                     NationalId = table.Column<string>(type: "TEXT", fixedLength: true, maxLength: 11, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
@@ -30,6 +49,12 @@ namespace payment_system.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Customers", x => x.Id);
                     table.CheckConstraint("CK_Customer_NationalId_Format", "length(NationalId) = 11 AND NationalId NOT GLOB '*[^0-9]*'");
+                    table.ForeignKey(
+                        name: "FK_Customers_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -152,16 +177,16 @@ namespace payment_system.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Customers_Email",
+                name: "IX_Customers_NationalId",
                 table: "Customers",
-                column: "Email",
+                column: "NationalId",
                 unique: true,
                 filter: "IsDeleted = 0");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Customers_NationalId",
+                name: "IX_Customers_UserId",
                 table: "Customers",
-                column: "NationalId",
+                column: "UserId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -194,6 +219,9 @@ namespace payment_system.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Customers");
+
+            migrationBuilder.DropTable(
+                name: "User");
         }
     }
 }

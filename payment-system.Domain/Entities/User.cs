@@ -8,7 +8,6 @@ namespace payment_system.Domain.Entities
         public UserRole Role { get; set; }
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
-        public DateTime DateOfBirth { get; set; }
         public virtual Customer? Customer { get; set; }
             
     }

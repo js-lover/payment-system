@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using payment_system.Application.Services.Interfaces;
 using payment_system.Application.DTOs.Customer;
 using payment_system.Domain.Entities;
@@ -30,6 +31,7 @@ namespace payment_system.Api.Controllers
 
 
         [HttpDelete("{id}")]
+        [Authorize]  // ✅ GÜVENLIK: Sadece kimliği doğrulanmış kullanıcılar silebilir
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteCustomer(Guid id)

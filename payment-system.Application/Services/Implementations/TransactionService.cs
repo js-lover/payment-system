@@ -54,6 +54,13 @@ namespace payment_system.Application.Services.Implementations
 
             // ===== İŞ MANTTIĞI: TRANSACTION TİPİNE GÖRE KONTROL =====
 
+            if(account.Currency != request.Currency)
+                return Result<TransactionDto>.Failure(
+                    $"Currency mismatch. Account currency: {account.Currency}, Transaction currency: {request.Currency}",
+                    400);
+
+
+
             switch (request.TransactionType)
             {
                 case TransactionType.Sale:
