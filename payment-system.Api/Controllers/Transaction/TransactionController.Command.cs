@@ -11,7 +11,7 @@ namespace payment_system.Api.Controllers
         /// Create a new transaction
         /// </summary>
         [HttpPost]
-        [Authorize]  // ✅ GÜVENLIK: Sadece kimliği doğrulanmış kullanıcılar transaction yapabilir
+        [Authorize(Roles = "Admin,Customer")]  // ✅ GÜVENLIK: Admin ve Customer transaction yapabilir
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TransactionDto>> Create(CreateTransactionRequest request)
@@ -19,11 +19,14 @@ namespace payment_system.Api.Controllers
             var result = await _transactionService.CreateTransactionAsync(request);
             if (result.IsSuccess)
             {
-                return CreatedAtAction(nameof(GetAll), new { id = result.Data.Id }, result.Data);
+                if (result.Data != null)
+                    return CreatedAtAction(nameof(GetAll), new { id = result.Data.Id }, result.Data);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Transaction created but result data is missing." });
             }
             return BadRequest(new { message = result.Message });
         }
 
-        
+
     }
 }

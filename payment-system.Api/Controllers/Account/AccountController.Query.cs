@@ -7,9 +7,9 @@ namespace payment_system.Api.Controllers
     public partial class AccountController
     {
         /// <summary>
-        /// Tüm account'ları getir
+        /// Retrieves all accounts from the system.
         /// </summary>
-        [Authorize]
+        [Authorize(Roles = "Admin,Customer")]  // Security: Only Admin and Customer can access this endpoint
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -23,9 +23,10 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Account detaylarını ve transaction'larını getir
+        /// Retrieves detailed account information including associated transactions.
         /// </summary>
         [HttpGet("{accountId}/details")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<AccountDetailsDto>> GetDetails(Guid accountId)
@@ -38,9 +39,10 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Account bakiyesini getir
+        /// Retrieves the current balance of an account.
         /// </summary>
         [HttpGet("{accountId}/balance")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<object>> GetBalance(Guid accountId)
@@ -53,9 +55,10 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Customer ID'sine göre account'u getir
+        /// Retrieves an account by customer identifier.
         /// </summary>
         [HttpGet("customer/{customerId}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<AccountDetailsDto>> GetByCustomerId(Guid customerId)
@@ -68,9 +71,10 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Bakiye aralığına göre account'ları getir
+        /// Retrieves accounts whose balance falls within the specified range.
         /// </summary>
         [HttpGet("balance-range")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<AccountDetailsDto>>> GetByBalanceRange(
@@ -78,7 +82,7 @@ namespace payment_system.Api.Controllers
             [FromQuery] decimal maxBalance)
         {
             if (minBalance < 0 || maxBalance < 0 || minBalance > maxBalance)
-                return BadRequest(new { message = "Geçersiz bakiye aralığı." });
+                return BadRequest(new { message = "Invalid balance range." });
 
             var result = await _accountService.GetAccountsByBalanceRangeAsync(minBalance, maxBalance);
             if (result.IsSuccess)
@@ -86,5 +90,7 @@ namespace payment_system.Api.Controllers
 
             return BadRequest(new { message = result.Message });
         }
+
+
     }
 }

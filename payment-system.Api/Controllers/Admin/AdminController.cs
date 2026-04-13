@@ -8,12 +8,12 @@ using payment_system.Domain.Enums;
 namespace payment_system.Api.Controllers.Admin
 {
     /// <summary>
-    /// Admin yönetim controller'ı
-    /// Sadece Admin kullanıcıları tarafından erişilebilir
+    /// Admin management controller for administrative operations.
+    /// Only accessible by Admin role users.
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]  // ✅ GÜVENLIK: Sadece Admin erişebilir
+    [Authorize(Roles = "Admin")]  // Security: Only Admin can access this controller
     public class AdminController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -24,32 +24,32 @@ namespace payment_system.Api.Controllers.Admin
         }
 
         /// <summary>
-        /// Tüm admin kullanıcılarını listele
+        /// Retrieves all admin users from the system.
         /// 
-        /// Güvenlik: Sadece Admin kullanıcılar erişebilir
+        /// Security: Only Admin role users can access this endpoint.
         /// Authorization: [Authorize(Roles = "Admin")]
         /// 
-        /// Örnek İstek:
+        /// Example Request:
         /// GET /api/admin
         /// Authorization: Bearer {jwt_token}
         /// 
-        /// Başarılı Cevap (200):
+        /// Successful Response (200):
         /// [
         ///   {
         ///     "id": "550e8400-e29b-41d4-a716-446655440000",
         ///     "email": "admin1@example.com",
-        ///     "name": "Yönetici",
-        ///     "surname": "Birinci"
+        ///     "name": "Administrator",
+        ///     "surname": "First"
         ///   },
         ///   {
         ///     "id": "550e8400-e29b-41d4-a716-446655440001",
         ///     "email": "admin2@example.com",
-        ///     "name": "Yönetici",
-        ///     "surname": "İkinci"
+        ///     "name": "Administrator",
+        ///     "surname": "Second"
         ///   }
         /// ]
         /// 
-        /// Başarısız Cevap (401):
+        /// Failed Response (401):
         /// {
         ///   "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
         ///   "title": "Unauthorized",
@@ -57,8 +57,9 @@ namespace payment_system.Api.Controllers.Admin
         ///   "traceId": "..."
         /// }
         /// </summary>
-        /// <returns>Tüm admin kullanıcıların listesi</returns>
+        /// <returns>List of all admin users</returns>
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -75,12 +76,12 @@ namespace payment_system.Api.Controllers.Admin
         }
 
         /// <summary>
-        /// Yeni admin kullanıcısı oluştur
+        /// Creates a new admin user account.
         /// 
-        /// Güvenlik: Sadece Admin kullanıcılar oluşturabilir
+        /// Security: Only Admin role users can create new admins.
         /// Authorization: [Authorize(Roles = "Admin")]
         /// 
-        /// İstek Body:
+        /// Request Body:
         /// {
         ///   "email": "newadmin@example.com",
         ///   "password": "SecurePass123!@#",
@@ -88,24 +89,25 @@ namespace payment_system.Api.Controllers.Admin
         ///   "role": 1  // 1 = Admin (Customer = 0, Admin = 1)
         /// }
         /// 
-        /// Başarılı Cevap (201):
+        /// Successful Response (201):
         /// {
         ///   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
         ///   "email": "newadmin@example.com",
         ///   "role": 1
         /// }
         /// </summary>
-        /// <param name="request">Admin kayıt isteği</param>
-        /// <returns>Oluşturulan admin ve JWT token</returns>
+        /// <param name="request">Admin registration request</param>
+        /// <returns>Created admin with JWT token</returns>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<dynamic>> CreateAdmin([FromBody] RegisterRequest request)
         {
-            // Admin oluşturma isteğinde role otomatik olarak Admin olmalı
-            // Güvenlik açısından request'teki role'ü görmezden geleceğiz
+            // Admin creation should automatically set role to Admin
+            // For security, we override the role from the request
             request.Role = UserRole.Admin;
 
             var result = await _authService.RegisterAsync(request);
@@ -119,24 +121,25 @@ namespace payment_system.Api.Controllers.Admin
         }
 
         /// <summary>
-        /// Admin Dashboard İstatistikleri (İleride eklenecek)
+        /// Admin Dashboard Statistics (To be implemented)
         /// 
-        /// Örnek:
-        /// - Toplam müşteri sayısı
-        /// - Toplam transaction sayısı
-        /// - Günlük kazanç
-        /// - Son giriş yapan kullanıcılar
+        /// Expected features:
+        /// - Total customer count
+        /// - Total transaction count
+        /// - Daily revenue
+        /// - Recent login activity
         /// </summary>
         [HttpGet("dashboard")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public ActionResult<dynamic> GetDashboard()
         {
-            // TODO: Istatistik verilerini döndür
+            // TODO: Return statistics data
             return Ok(new
             {
-                message = "Admin Dashboard - İleride uygulanacak",
+                message = "Admin Dashboard - To be implemented",
                 totalCustomers = 0,
                 totalTransactions = 0,
                 dailyRevenue = 0

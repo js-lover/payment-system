@@ -7,26 +7,32 @@ namespace payment_system.Api.Controllers
     public partial class AccountController
     {
         /// <summary>
-        /// Yeni account oluştur
+        /// Creates a new account for an authenticated user.
         /// </summary>
         [HttpPost]
-        [Authorize]  // ✅ GÜVENLIK: Sadece kimliği doğrulanmış kullanıcılar oluşturabilir
+        [Authorize(Roles = "Admin,Customer")]  // Only authenticated users can create accounts
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<AccountDto>> Create([FromBody] CreateAccountRequest request)
         {
             var result = await _accountService.CreateAccountAsync(request);
             if (result.IsSuccess)
-                return CreatedAtAction(nameof(GetDetails), new { accountId = result.Data.Id }, result.Data);
+            {
+                if (result.Data != null)
+                    return CreatedAtAction(nameof(GetDetails), new { accountId = result.Data.Id }, result.Data);
+
+                // Success reported but no data returned: treat as server error
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Account created but result data is missing." });
+            }
 
             return BadRequest(new { message = result.Message });
         }
 
         /// <summary>
-        /// Account'u güncelle
+        /// Updates an existing account with new information.
         /// </summary>
         [HttpPut("{accountId}")]
-        [Authorize]  // ✅ GÜVENLIK: Sadece kimliği doğrulanmış kullanıcılar güncelleyebilir
+        [Authorize(Roles = "Admin,Customer")]  // Security: Only authenticated users can update accounts
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -40,10 +46,10 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Account'u sil
+        /// Deletes an account from the system.
         /// </summary>
         [HttpDelete("{accountId}")]
-        [Authorize]  // ✅ GÜVENLIK: Sadece kimliği doğrulanmış kullanıcılar silebilir
+        [Authorize(Roles = "Admin,Customer")]  // Security: Only authenticated users can delete accounts
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(Guid accountId)

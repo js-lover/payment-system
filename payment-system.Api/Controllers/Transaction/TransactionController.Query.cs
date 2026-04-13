@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using payment_system.Application.DTOs.Transaction;
@@ -8,9 +9,10 @@ namespace payment_system.Api.Controllers
     public partial class TransactionController
     {
         /// <summary>
-        /// Tüm transaction'ları getir
+        /// Retrieves all transactions from the system.
         /// </summary>
         [HttpGet]
+        [Authorize(Roles = "Admin,Customer")]  // Security: Admin and Customer can access this endpoint
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<TransactionDto>>> GetAll()
@@ -23,9 +25,10 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Belirli account'a ait transaction'ları getir
+        /// Retrieves all transactions associated with a specific account.
         /// </summary>
-        [HttpGet("account/{accountId}")]  // ✅ Route eklendi
+        [HttpGet("account/{accountId}")]  // Route added
+        [Authorize(Roles = "Admin,Customer")]  // Security: Admin and Customer can access this endpoint
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<TransactionDto>>> GetByAccountId(Guid accountId)
@@ -38,9 +41,10 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Tarih aralığında transaction'ları getir
+        /// Retrieves transactions that occurred within the specified date range.
         /// </summary>
-        [HttpGet("date-range")]  // ✅ Route eklendi
+        [HttpGet("date-range")]  // Route added
+        [Authorize(Roles = "Admin,Customer")]  // Security: Admin and Customer can access this endpoint
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<TransactionDto>>> GetByDateRange(
@@ -55,9 +59,10 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Transaction tipine göre getir
+        /// Retrieves transactions filtered by transaction type.
         /// </summary>
-        [HttpGet("type/{transactionType}")]  // ✅ Route eklendi
+        [HttpGet("type/{transactionType}")]  // Route added
+        [Authorize(Roles = "Admin,Customer")]  // Security: Admin and Customer can access this endpoint
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<TransactionDto>>> GetByTransactionType(string transactionType)

@@ -11,7 +11,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ===== DATABASE CONTEXT =====
+// Database Context Configuration
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlite(
@@ -19,8 +19,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseLazyLoadingProxies();
 });
 
-// ===== JWT AUTHENTICATION CONFIGURATION (Faz 4) =====
-// appsettings.json dosyasındaki ayarları okuyoruz
+// JWT Authentication Configuration
+// Read settings from appsettings.json
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = Encoding.ASCII.GetBytes(jwtSettings["Secret"]!);
 
@@ -46,16 +46,20 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// ===== DEPENDENCY INJECTION =====
+// Dependency Injection Configuration
 builder.Services.AddDatabaseServices(builder.Configuration);
 builder.Services.AddRepositories();
 builder.Services.AddApplicationServices();
-builder.Services.AddSwaggerDocumentation(); // Not: Buraya JWT desteği eklemen gerekecek
+
+// AutoMapper Configuration
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddSwaggerDocumentation(); // Note: JWT support is configured via JwtBearerDefaults
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// ===== MIDDLEWARE =====
+// Middleware Configuration
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -68,9 +72,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// SIRALAMA ÇOK ÖNEMLİ:
-app.UseAuthentication(); // 1. Kimsin? (Yeni eklendi)
-app.UseAuthorization();  // 2. Bu işlemi yapmaya yetkin var mı?
+// Middleware execution order is critical:
+app.UseAuthentication(); // 1. Identify the user (Who are you?)
+app.UseAuthorization();  // 2. Check permissions (Are you allowed to do this?)
 
 app.MapControllers();
 

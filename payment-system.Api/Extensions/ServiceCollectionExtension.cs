@@ -34,6 +34,7 @@ namespace payment_system.Api.Extensions
             services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ICardRepository, CardRepository>();
 
             return services;
         }
@@ -46,6 +47,7 @@ namespace payment_system.Api.Extensions
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<ICardService, CardService>();
             services.AddScoped<IPasswordService, BCryptPasswordService>();
             services.AddScoped<ITokenService, JwtTokenService>();
             services.AddScoped<IAuthService, AuthService>();

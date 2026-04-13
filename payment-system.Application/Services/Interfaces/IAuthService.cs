@@ -1,5 +1,3 @@
-//kullanıcının giriş talebini işleme alır, kimliği doğrular ve bir JWT teslim eder
-
 using payment_system.Application.Common;
 using payment_system.Application.DTOs.Admin;
 using payment_system.Application.DTOs.Auth;
@@ -9,31 +7,31 @@ namespace payment_system.Application.Services.Interfaces
     public interface IAuthService
     {
         /// <summary>
-        /// Kullanıcının giriş talebini işleme alır, kimliği doğrular ve bir JWT teslim eder.
+        /// Authenticates a user by email and password, validates credentials, and returns a JWT token.
         /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
+        /// <param name="request">Login request containing email and password</param>
+        /// <returns>Authentication response with JWT token and user information</returns>
         Task <Result<AuthResponse>> LoginAsync(LoginRequest request);
 
         /// <summary>
-        /// Yeni kullanıcı kaydı (Register)
+        /// Registers a new user account with email, password, and role.
         /// 
-        /// İş Akışı:
-        /// 1. Email doğrulaması (zaten kayıtlı mı?)
-        /// 2. Şifre doğrulaması (güç ve uyuşma)
-        /// 3. User oluştur (Identity) - Email, şifre, rol
-        /// 4. Eğer Customer ise, müşteri profili oluştur
-        /// 5. JWT token döndür
+        /// Workflow:
+        /// 1. Email validation (check if already registered)
+        /// 2. Password validation (strength and confirmation match)
+        /// 3. Create User (Identity) - Email, password, role
+        /// 4. If Customer role, create customer profile
+        /// 5. Return JWT token
         /// </summary>
-        /// <param name="request">Kayıt isteği (Email, şifre, rol, profil bilgileri)</param>
-        /// <returns>JWT token ve kullanıcı bilgileri veya hata</returns>
+        /// <param name="request">Registration request containing email, password, role, and profile information</param>
+        /// <returns>JWT token and user information or error message</returns>
         Task<Result<AuthResponse>> RegisterAsync(RegisterRequest request);
 
 
         /// <summary>
-        /// Tüm admin kullanıcılarını getirir.
+        /// Retrieves all admin users from the system.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>List of admin users with their details</returns>
         Task<Result<List<AdminsDto>>> GetAllAdminsAsync();
     }
 }

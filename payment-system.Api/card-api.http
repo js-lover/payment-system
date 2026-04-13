@@ -1,0 +1,73 @@
+@base = http://localhost:5190
+@token = your_jwt_token_here
+
+### ============================================
+### KART YÖNETİMİ API TESTLERI
+### ============================================
+
+### 1. Tüm Kartları Listele
+GET {{base}}/api/card
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+### 2. Belirli Bir Kartı Getir
+GET {{base}}/api/card/{card-id}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+### 3. Hesaba Ait Kartları Listele
+GET {{base}}/api/card/account/{account-id}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+### 4. Yeni Kart Oluştur
+POST {{base}}/api/card
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cardNumber": "4532015112830366",
+  "cardName": "My Visa Card",
+  "expirationDate": "2027-12-31T00:00:00Z",
+  "cvc": "123",
+  "accountId": "your-account-id-here"
+}
+
+###
+
+### 5. Kartı Güncelle (Status Değiştir)
+PUT {{base}}/api/card/{card-id}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cardName": "Updated Card Name",
+  "status": 2
+}
+
+###
+
+### 6. Kartı Sil
+DELETE {{base}}/api/card/{card-id}
+Authorization: Bearer {{token}}
+
+###
+
+### ============================================
+### NOTLAR:
+### - {card-id}: Geçerli bir kart GUID'i ile değiştir
+### - {account-id}: Geçerli bir hesap GUID'i ile değiştir
+### - {{token}}: JWT token'ı gir
+### - CardStatus Enum Values:
+###   0 = None
+###   1 = WaitingForApproval
+###   2 = Active
+###   3 = Blocked
+###   4 = Expired
+### ============================================

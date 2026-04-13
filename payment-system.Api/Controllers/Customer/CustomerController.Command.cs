@@ -11,11 +11,12 @@ namespace payment_system.Api.Controllers
     {
 
         /// <summary>
-        /// Yeni bir müşteri oluşturur.
+        /// Creates a new customer record in the system.
         /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
+        /// <param name="request">Customer creation request with required information</param>
+        /// <returns>Created customer with HTTP 201 status</returns>
         [HttpPost]
+        [Authorize(Roles = "Admin,Customer")]  // Security: Only Admin and Customer can create customers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateCustomer([FromBody] CreateCustomerRequest request)
@@ -31,7 +32,7 @@ namespace payment_system.Api.Controllers
 
 
         [HttpDelete("{id}")]
-        [Authorize]  // ✅ GÜVENLIK: Sadece kimliği doğrulanmış kullanıcılar silebilir
+        [Authorize(Roles = "Admin,Customer")]  // Security: Only Admin and Customer can delete customers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteCustomer(Guid id)

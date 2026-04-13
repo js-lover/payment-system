@@ -30,33 +30,33 @@ namespace payment_system.Application.Services.Implementations
 
         public async Task<Result<AuthResponse>> LoginAsync(LoginRequest request)
         {
-            // 1. Kullanıcıyı e-posta ile veritabanında ara
+            // 1. Find user by email in database
             var user = await _userRepository.GetByEmailAsync(request.Email);
 
-            // 2. Kullanıcı yoksa veya silinmişse hata dön
-            // Güvenlik Notu: "Email yanlış" demek yerine "Geçersiz giriş" demek daha güvenlidir.
+            // 2. Return error if user not found or is deleted
+            // Security Note: Returning generic "invalid credentials" message is more secure than revealing email existence
             if (user == null)
             {
-                return Result<AuthResponse>.Failure("E-posta veya şifre hatalı.");
+                return Result<AuthResponse>.Failure("Invalid email or password.");
             }
 
-            // 3. Şifreyi doğrula (BCrypt kullanarak hash karşılaştırması)
+            // 3. Verify password using BCrypt hash comparison
             var isPasswordValid = _passwordService.VerifyPassword(request.Password, user.PasswordHash);
 
             if (!isPasswordValid)
             {
-                return Result<AuthResponse>.Failure("E-posta veya şifre hatalı.");
+                return Result<AuthResponse>.Failure("Invalid email or password.");
             }
 
-            // 4. Kimlik doğrulandı, şimdi JWT oluştur
+            // 4. Authentication successful, generate JWT token
             var token = _tokenService.CreateToken(user);
 
-            // 5. Başarılı sonucu paketle ve dön
+            // 5. Package successful result and return
             var response = new AuthResponse
             {
                 Token = token,
                 Email = user.Email,
-                ExpireTime = DateTime.UtcNow.AddMinutes(60) // Token süresiyle uyumlu olmalı
+                ExpireTime = DateTime.UtcNow.AddMinutes(60) // Must align with token expiration time
         
             };
 
@@ -64,68 +64,68 @@ namespace payment_system.Application.Services.Implementations
         }
 
         /// <summary>
-        /// Yeni kullanıcı kaydı (Register)
+        /// Registers a new user account with email, password, and role.
         /// 
-        /// "User-First" Mimarisi:
-        /// 1. User (Identity) oluştur → Email, Şifre, Role
-        /// 2. Eğer Customer role ise → Customer (Profile) oluştur
-        /// 3. Admin/Staff için → Sadece User, Customer olmaz
-        /// 4. JWT token döndür
+        /// User-First Architecture:
+        /// 1. Create User (Identity) with Email, Password, Role
+        /// 2. If Customer role, create Customer (Profile)
+        /// 3. For Admin/Staff roles, only User is created (no Customer profile)
+        /// 4. Generate and return JWT token
         /// </summary>
         public async Task<Result<AuthResponse>> RegisterAsync(RegisterRequest request)
         {
             try
             {
-                // ========== ADIM 1: VALIDASYON ==========
+                // ========== STEP 1: VALIDATION ==========
 
                 if (request == null)
-                    return Result<AuthResponse>.Failure("Geçersiz kayıt isteği.");
+                    return Result<AuthResponse>.Failure("Invalid registration request.");
 
                 if (string.IsNullOrWhiteSpace(request.Email))
-                    return Result<AuthResponse>.Failure("Email adresi boş olamaz.");
+                    return Result<AuthResponse>.Failure("Email address cannot be empty.");
 
                 if (string.IsNullOrWhiteSpace(request.Password))
-                    return Result<AuthResponse>.Failure("Şifre boş olamaz.");
+                    return Result<AuthResponse>.Failure("Password cannot be empty.");
 
                 if (request.Password != request.ConfirmPassword)
-                    return Result<AuthResponse>.Failure("Şifreler uyuşmuyor.");
+                    return Result<AuthResponse>.Failure("Passwords do not match.");
 
                 if (request.Password.Length < 6)
-                    return Result<AuthResponse>.Failure("Şifre en az 6 karakter olmalıdır.");
+                    return Result<AuthResponse>.Failure("Password must be at least 6 characters long.");
 
-                // Email zaten kayıtlı mı?
+                // Is email already registered?
                 var existingUser = await _userRepository.GetByEmailAsync(request.Email);
                 if (existingUser != null)
-                    return Result<AuthResponse>.Failure("Bu email adresi zaten kayıtlı.");
+                    return Result<AuthResponse>.Failure("This email address is already registered.");
 
-                // ========== ADIM 2: USER (IDENTITY) OLUŞTUR ==========
+                // ========== STEP 2: CREATE USER (IDENTITY) ==========
 
                 var user = new User
                 {
                     Id = Guid.NewGuid(),
                     Email = request.Email.Trim(),
                     PasswordHash = _passwordService.HashPassword(request.Password),
-                    Role = request.Role,  // ✅ Role'ü request'ten al (Customer, Admin, Staff)
+                    Role = request.Role,  // Get role from request (Customer, Admin, Staff)
                     CreatedAt = DateTime.UtcNow
                 };
 
-                // ========== ADIM 3: CUSTOMER PROFİLİ (Sadece Customer role'ü için) ==========
+                // ========== STEP 3: CREATE CUSTOMER PROFILE (Customer role only) ==========
 
                 if (request.Role == UserRole.Customer)
                 {
-                    // Customer profili oluştur
+                    // Create customer profile
                     if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Surname))
-                        return Result<AuthResponse>.Failure("Ad ve soyad boş olamaz (Customer için).");
+                        return Result<AuthResponse>.Failure("First name and last name cannot be empty (required for Customer).");
 
                     if (string.IsNullOrWhiteSpace(request.NationalId))
-                        return Result<AuthResponse>.Failure("TC Kimlik Numarası boş olamaz (Customer için).");
+                        return Result<AuthResponse>.Failure("National ID cannot be empty (required for Customer).");
 
-                    // National ID duplicate kontrolü
+                    // Verify National ID is not already registered
                     var existingNationalId = await _customerRepository.GetCustomerByNationalIdAsync(request.NationalId);
                     if (existingNationalId != null)
-                        return Result<AuthResponse>.Failure("Bu TC Kimlik Numarası zaten kayıtlı.");
+                        return Result<AuthResponse>.Failure("This National ID is already registered.");
 
-                    // Customer oluştur
+                    // Create customer
                     var customer = new Customer
                     {
                         Id = Guid.NewGuid(),
@@ -139,18 +139,18 @@ namespace payment_system.Application.Services.Implementations
                         CreatedAt = DateTime.UtcNow
                     };
 
-                    // Customer'ı ve User'ı kaydet
+                    // Save customer and user
                     await _customerRepository.CreateCustomerAsync(customer);
                     await _customerRepository.SaveChangesAsync();
                 }
                 else
                 {
-                    // Admin/Staff/Moderator için sadece User oluştur
+                    // For Admin/Staff/Moderator, only create User
                     await _userRepository.CreateAsync(user);
                     await _userRepository.SaveChangesAsync();
                 }
 
-                // ========== ADIM 4: JWT TOKEN OLUŞTUR ==========
+                // ========== STEP 4: CREATE JWT TOKEN ==========
 
                 var token = _tokenService.CreateToken(user);
 
@@ -163,41 +163,41 @@ namespace payment_system.Application.Services.Implementations
 
                 return Result<AuthResponse>.Success(
                     response,
-                    $"{user.Role} kullanıcısı başarıyla kaydedildi.",
+                    $"{user.Role} user successfully registered.",
                     201
                 );
             }
             catch (Exception ex)
             {
                 return Result<AuthResponse>.Failure(
-                    $"Kayıt işlemi sırasında hata oluştu: {ex.Message}",
+                    $"An error occurred during registration: {ex.Message}",
                     500
                 );
             }
         }
 
         /// <summary>
-        /// Tüm admin kullanıcılarını getirir
+        /// Retrieves all admin users from the system.
         /// 
-        /// İş Akışı:
-        /// 1. User tablosundan Role = Admin olan kullanıcıları sorgula
-        /// 2. AdminsDto'ya dönüştür (Id, Email, Name, Surname)
-        /// 3. Liste döndür
+        /// Workflow:
+        /// 1. Query User table for users with Admin role
+        /// 2. Map to AdminsDto (Id, Email, Name, Surname)
+        /// 3. Return list
         /// 
-        /// Not: Admin'in customer profili yoktur, sadece User record'ı vardır
+        /// Note: Admin users do not have a customer profile, only a User record exists
         /// </summary>
         public async Task<Result<List<AdminsDto>>> GetAllAdminsAsync()
         {
             try
             {
-                // Tüm admin kullanıcılarını getir
+                // Retrieve all admin users
                 var admins = await _userRepository.GetAllAdminsByRoleAsync();
 
-                // Eğer admin bulunamazsa
+                // Return error if no admin users found
                 if (!admins.Any())
-                    return Result<List<AdminsDto>>.Failure("Hiçbir admin kullanıcısı bulunamadı.");
+                    return Result<List<AdminsDto>>.Failure("No admin users found in the system.");
 
-                // AdminsDto listesine dönüştür
+                // Map to AdminsDto list
                 var adminDtos = admins.Select(u => new AdminsDto
                 {
                     Id = u.Id,

@@ -23,6 +23,13 @@ namespace payment_system.Infrastructure.Persistence.Configurations
                 .HasForeignKey(x => x.AccountId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            //card name must be unique and not empty
+            builder.Property(x => x.CardName)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.HasIndex(x => x.CardName)
+                .IsUnique();
 
             //card number has 16 digits 
             builder.Property(x => x.CardNumber)

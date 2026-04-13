@@ -11,6 +11,7 @@ namespace payment_system.Domain.Entities
     {
         //card number must be unique and masked like "1234 **** **** 6789"
         public string CardNumber { get; set; } = null!;
+        public string CardName { get; set; } = null!;
         public DateTime ExpirationDate { get; set; }
         //cvv cannot be stored in plain text and must be encrypted or never save to db
         public string CVC { get; set; } = null!;
