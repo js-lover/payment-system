@@ -13,7 +13,12 @@ namespace payment_system.Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Card> builder)
         {
 
-            builder.ToTable("Cards").HasQueryFilter(x => !x.IsDeleted);
+            builder.ToTable("Cards", t =>
+            {
+                t.HasCheckConstraint("CK_Card_CardNumber_Format", "length(CardNumber) = 16");
+                t.HasCheckConstraint("CK_Card_ExpirationDate_Format", "length(ExpirationDate) = 5");
+                t.HasCheckConstraint("CK_Card_CVC_Format", "length(CVC) = 3");
+            }).HasQueryFilter(x => !x.IsDeleted);
 
             builder.HasKey(x => x.Id);
 
@@ -40,24 +45,16 @@ namespace payment_system.Infrastructure.Persistence.Configurations
             builder.HasIndex(x => x.CardNumber)
                 .IsUnique();
 
-            //checks if card number has 16 digits and its all numbers
-            builder.HasCheckConstraint("CK_Card_CardNumber_Format", "length([CardNumber]) = 16 AND [CardNumber] NOT GLOB '*[^0-9]*'");
-
             builder.Property(x => x.ExpirationDate)
                 .IsRequired()
                 .HasMaxLength(5)
                 .IsFixedLength();
-
-            //checks if expiration date is in MM/YY format
-            builder.HasCheckConstraint("CK_Card_ExpirationDate_Format", "length([ExpirationDate]) = 5 AND [ExpirationDate] LIKE '__/__' AND [ExpirationDate] NOT LIKE '%[^0-9/]%'");
 
             //checks if CVC is 3 digits
             builder.Property(x => x.CVC)
                 .IsRequired()
                 .HasMaxLength(3)
                 .IsFixedLength();
-
-            builder.HasCheckConstraint("CK_Card_CVC_Format", "length([CVC]) = 3 AND [CVC] NOT GLOB '*[^0-9]*'");
 
         }
 

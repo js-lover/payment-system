@@ -138,10 +138,13 @@ namespace payment_system.Application.Services.Implementations
                 if (request == null)
                     return Result<CardDto>.Failure("Request verisi boş olamaz", 400);
 
-                // Validate expiration date
-                if (request.ExpirationDate <= DateTime.Now)
-                    return Result<CardDto>.Failure("Son kullanma tarihi geçmiş olamaz", 400);
+                // Validate expiration date format (MM/YY)
+                if (!IsValidExpirationDate(request.ExpirationDate))
+                    return Result<CardDto>.Failure("Geçersiz son kullanma tarihi formatı (MM/YY gerekli)", 400);
 
+                // Check if card number is 16 digits
+                if (!System.Text.RegularExpressions.Regex.IsMatch(request.CardNumber, @"^\d{16}$"))
+                    return Result<CardDto>.Failure("Kart numarası 16 hane olmalıdır", 400);
 
                 // Check if account exists
                 var account = await _accountRepository.GetByIdAsync(request.AccountId);
@@ -246,7 +249,40 @@ namespace payment_system.Application.Services.Implementations
 
         // ===== Helper Methods =====
 
+        /// <summary>
+        /// Son kullanma tarihinin geçerli olup olmadığını kontrol et (MM/YY formatı)
+        /// </summary>
+        private bool IsValidExpirationDate(string expirationDate)
+        {
+            try
+            {
+                // Format: MM/YY (örn: 12/25)
+                if (!System.Text.RegularExpressions.Regex.IsMatch(expirationDate, @"^(0[1-9]|1[0-2])/\d{2}$"))
+                    return false;
 
+                var parts = expirationDate.Split('/');
+                int month = int.Parse(parts[0]);
+                int year = int.Parse(parts[1]);
+
+                // Current date
+                int currentMonth = DateTime.Now.Month;
+                int currentYear = DateTime.Now.Year % 100; // Last 2 digits
+
+                // Card expires at the end of the expiration month
+                // So it's valid until the last day of the month
+                if (year < currentYear)
+                    return false;
+
+                if (year == currentYear && month < currentMonth)
+                    return false;
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         /// <summary>
         /// CVC'yi şifrele

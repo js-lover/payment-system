@@ -19,7 +19,9 @@ namespace payment_system.Application.DTOs.Card
         public string CardName { get; set; } = null!;
 
         [Required(ErrorMessage = "Son kullanma tarihi zorunludur")]
-        public DateTime ExpirationDate { get; set; }
+        [RegularExpression(@"^(0[1-9]|1[0-2])/\d{2}$", 
+            ErrorMessage = "Son kullanma tarihi MM/YY formatında olmalıdır (örn: 12/25)")]
+        public string ExpirationDate { get; set; } = null!;
 
         [Required(ErrorMessage = "CVC zorunludur")]
         [RegularExpression(@"^\d{3,4}$", 

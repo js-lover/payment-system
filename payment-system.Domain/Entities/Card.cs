@@ -12,11 +12,12 @@ namespace payment_system.Domain.Entities
         //card number must be unique and masked like "1234 **** **** 6789"
         public string CardNumber { get; set; } = null!;
         public string CardName { get; set; } = null!;
-        public DateTime ExpirationDate { get; set; }
+        //expiration date in MM/YY format (e.g., "12/25")
+        public string ExpirationDate { get; set; } = null!;
         //cvv cannot be stored in plain text and must be encrypted or never save to db
         public string CVC { get; set; } = null!;
         public Guid AccountId { get; set; }
-        public virtual Account Account { get; set; }
+        public virtual Account? Account { get; set; }
         public CardStatus Status { get; set; }
 
         //a card can have multiple transactions
