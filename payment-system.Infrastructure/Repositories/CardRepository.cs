@@ -12,8 +12,8 @@ using payment_system.Infrastructure.Persistence.Contexts;
 namespace payment_system.Infrastructure.Repositories
 {
     /// <summary>
-    /// Kart repository implementasyonu
-    /// Database operasyonlarını handle eder
+    /// Card repository implementation.
+    /// Handles database operations for cards.
     /// </summary>
     public class CardRepository : ICardRepository
     {
@@ -38,7 +38,7 @@ namespace payment_system.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Kartı ID'ye göre getirme hatası: {ex.Message}");
+                _logger.LogError($"Error retrieving card by ID: {ex.Message}");
                 throw;
             }
         }
@@ -55,7 +55,7 @@ namespace payment_system.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Tüm kartları getirme hatası: {ex.Message}");
+                _logger.LogError($"Error retrieving all cards: {ex.Message}");
                 throw;
             }
         }
@@ -71,7 +71,7 @@ namespace payment_system.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Hesap kartlarını getirme hatası: {ex.Message}");
+                _logger.LogError($"Error retrieving account cards: {ex.Message}");
                 throw;
             }
         }
@@ -85,7 +85,7 @@ namespace payment_system.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Kart numarasına göre getirme hatası: {ex.Message}");
+                _logger.LogError($"Error retrieving card by number: {ex.Message}");
                 throw;
             }
         }
@@ -103,7 +103,7 @@ namespace payment_system.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Active kartları getirme hatası: {ex.Message}");
+                _logger.LogError($"Error retrieving active cards: {ex.Message}");
                 throw;
             }
         }
@@ -120,12 +120,12 @@ namespace payment_system.Infrastructure.Repositories
                 _context.Cards.Add(card);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Kart oluşturuldu: {card.Id}");
+                _logger.LogInformation($"Card created: {card.Id}");
                 return card;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Kart oluşturma hatası: {ex.Message}");
+                _logger.LogError($"Error creating card: {ex.Message}");
                 throw;
             }
         }
@@ -138,12 +138,12 @@ namespace payment_system.Infrastructure.Repositories
                 _context.Cards.Update(card);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Kart güncellendi: {card.Id}");
+                _logger.LogInformation($"Card updated: {card.Id}");
                 return card;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Kart güncelleme hatası: {ex.Message}");
+                _logger.LogError($"Error updating card: {ex.Message}");
                 throw;
             }
         }
@@ -164,12 +164,12 @@ namespace payment_system.Infrastructure.Repositories
                 _context.Cards.Update(card);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Kart silindi: {cardId}");
+                _logger.LogInformation($"Card deleted: {cardId}");
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Kart silme hatası: {ex.Message}");
+                _logger.LogError($"Error deleting card: {ex.Message}");
                 throw;
             }
         }
@@ -185,7 +185,7 @@ namespace payment_system.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Kart varlığı kontrol hatası: {ex.Message}");
+                _logger.LogError($"Error checking card existence: {ex.Message}");
                 throw;
             }
         }
@@ -199,7 +199,7 @@ namespace payment_system.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Kart numarası varlığı kontrol hatası: {ex.Message}");
+                _logger.LogError($"Error checking card number existence: {ex.Message}");
                 throw;
             }
         }
@@ -215,7 +215,7 @@ namespace payment_system.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Hesap kartı kontrol hatası: {ex.Message}");
+                _logger.LogError($"Error checking account card: {ex.Message}");
                 throw;
             }
         }

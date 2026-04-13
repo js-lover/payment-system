@@ -12,7 +12,7 @@ namespace payment_system.Api.Extensions
     public static class ServiceCollectionExtension
     {
         /// <summary>
-        /// Database context'i kayıt et
+        /// Register database context in dependency injection container.
         /// </summary>
         public static IServiceCollection AddDatabaseServices(this IServiceCollection services, IConfiguration configuration)
         {
@@ -26,7 +26,7 @@ namespace payment_system.Api.Extensions
         }
 
         /// <summary>
-        /// Repository'leri DI container'a kayıt et
+        /// Register repositories in dependency injection container.
         /// </summary>
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
@@ -40,7 +40,7 @@ namespace payment_system.Api.Extensions
         }
 
         /// <summary>
-        /// Service'leri DI container'a kayıt et
+        /// Register application services in dependency injection container.
         /// </summary>
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
@@ -57,7 +57,7 @@ namespace payment_system.Api.Extensions
         }
 
         /// <summary>
-        /// Swagger/OpenAPI yapılandırması
+        /// Configure Swagger/OpenAPI documentation.
         /// </summary>
         public static IServiceCollection AddSwaggerDocumentation(this IServiceCollection services)
         {
@@ -68,7 +68,7 @@ namespace payment_system.Api.Extensions
                 {
                     Title = "Payment System API",
                     Version = "v1.0",
-                    Description = "Ödeme sistemi API'si - Transaction ve Account yönetimi",
+                    Description = "Payment system API - Transaction and Account management",
                     Contact = new OpenApiContact
                     {
                         Name = "Payment System Team",
@@ -104,7 +104,7 @@ namespace payment_system.Api.Extensions
 
 
 
-                // XML comments
+                // Load XML documentation comments
                 var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 if (File.Exists(xmlPath))

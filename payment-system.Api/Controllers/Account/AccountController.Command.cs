@@ -10,7 +10,7 @@ namespace payment_system.Api.Controllers
         /// Creates a new account for an authenticated user.
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "Admin,Customer")]  // Only authenticated users can create accounts
+        [Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<AccountDto>> Create([FromBody] CreateAccountRequest request)
@@ -21,7 +21,6 @@ namespace payment_system.Api.Controllers
                 if (result.Data != null)
                     return CreatedAtAction(nameof(GetDetails), new { accountId = result.Data.Id }, result.Data);
 
-                // Success reported but no data returned: treat as server error
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Account created but result data is missing." });
             }
 
@@ -29,10 +28,10 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Updates an existing account with new information.
+        /// Update an existing account.
         /// </summary>
         [HttpPut("{accountId}")]
-        [Authorize(Roles = "Admin,Customer")]  // Security: Only authenticated users can update accounts
+        [Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -46,10 +45,10 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Deletes an account from the system.
+        /// Delete an account.
         /// </summary>
         [HttpDelete("{accountId}")]
-        [Authorize(Roles = "Admin,Customer")]  // Security: Only authenticated users can delete accounts
+        [Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(Guid accountId)

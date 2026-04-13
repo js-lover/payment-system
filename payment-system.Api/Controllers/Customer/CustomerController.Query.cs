@@ -7,12 +7,12 @@ namespace payment_system.Api.Controllers
     public partial class CustomerController
     {
         /// <summary>
-        /// Retrieves a specific customer by their identifier.
+        /// Get a specific customer by ID.
         /// </summary>
         /// <param name="id">Customer ID</param>
         /// <returns>Customer details if found</returns>
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin,Customer")]  // Security: Only Admin and Customer can access this endpoint
+        [Authorize(Roles = "Admin,Customer")]
         public async Task<IActionResult> GetCustomerByIdAsync(Guid id)
         {
             var result = await _customerService.GetCustomerByIdAsync(id);
@@ -22,11 +22,11 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieves all customers from the system.
+        /// Get all customers from the system.
         /// </summary>
         /// <returns>List of all customers</returns>
         [HttpGet]
-        [Authorize(Roles = "Admin,Customer")]  // Security: Admin and Customer can access this endpoint
+        [Authorize(Roles = "Admin,Customer")]
         public async Task<IActionResult> GetAllCustomersAsync()
         {
             var result = await _customerService.GetAllCustomersAsync();

@@ -10,16 +10,15 @@ using payment_system.Infrastructure.Persistence.Contexts;
 namespace payment_system.Infrastructure.Repositories
 {
     /// <summary>
-    /// Account repository implementasyonu
-    /// Sadece Account operasyonlarını gerçekleştirir
-    /// İş mantığı yoktur - sadece veri erişimi
+    /// Account repository implementation.
+    /// Handles only account operations with no business logic.
     /// </summary>
     public class AccountRepository : IAccountRepository
     {
         private readonly AppDbContext _db;
 
         /// <summary>
-        /// Constructor - DbContext inject edilir
+        /// Constructor - DbContext is injected.
         /// </summary>
         /// <param name="db">Application DbContext</param>
         public AccountRepository(AppDbContext db)
@@ -30,7 +29,7 @@ namespace payment_system.Infrastructure.Repositories
         // ===== READ OPERATIONS =====
 
         /// <summary>
-        /// ID'ye göre account'u getir
+        /// Get account by ID.
         /// </summary>
         public async Task<Account?> GetByIdAsync(Guid accountId)
         {
@@ -43,10 +42,10 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Customer ID'sine göre tüm account'ları getir
+        /// Get all accounts for a customer.
         /// </summary>
-        /// <param name="customerId">Customer ID'si</param>
-        /// <returns>Account listesi</returns>
+        /// <param name="customerId">Customer ID</param>
+        /// <returns>Account list</returns>
         public async Task<IEnumerable<Account>> GetAllByCustomerIdAsync(Guid customerId)
         {
             if (customerId == Guid.Empty)
@@ -61,7 +60,7 @@ namespace payment_system.Infrastructure.Repositories
 
 
         /// <summary>
-        /// Customer ID'sine göre account'u getir
+        /// Get account by customer ID.
         /// </summary>
         public async Task<Account?> GetByCustomerIdAsync(Guid customerId)
         {
@@ -74,7 +73,7 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Tüm account'ları getir
+        /// Get all accounts.
         /// </summary>
         public async Task<IEnumerable<Account>> GetAllAsync()
         {
@@ -85,7 +84,7 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Belirli bakiye aralığındaki account'ları getir
+        /// Get accounts within a balance range.
         /// </summary>
         public async Task<IEnumerable<Account>> GetAccountsByBalanceRangeAsync(decimal minBalance, decimal maxBalance)
         {
@@ -102,7 +101,7 @@ namespace payment_system.Infrastructure.Repositories
         // ===== WRITE OPERATIONS =====
 
         /// <summary>
-        /// Yeni account ekle
+        /// Add a new account.
         /// </summary>
         public async Task AddAsync(Account account)
         {
@@ -113,14 +112,13 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Mevcut account'u güncelle
+        /// Update an existing account.
         /// </summary>
         public async Task UpdateAsync(Account account)
         {
             if (account == null)
                 throw new ArgumentNullException(nameof(account));
 
-            // Mevcut account var mı?
             var existingAccount = await _db.Accounts.FindAsync(account.Id);
             if (existingAccount == null)
                 throw new InvalidOperationException($"Account with ID {account.Id} not found");
@@ -129,7 +127,7 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Account'u sil
+        /// Delete an account.
         /// </summary>
         public async Task DeleteAsync(Guid accountId)
         {
@@ -144,7 +142,7 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Veritabanındaki tüm değişiklikleri kaydet
+        /// Save all changes to database.
         /// </summary>
         public async Task SaveChangesAsync()
         {

@@ -105,91 +105,91 @@ namespace payment_system.Application.Services.Implementations
         //=======CREATE Operations======
 
         /// <summary>
-        /// Müşteri profili ve kullanıcı kimliğini oluşturur.
+        /// Create a customer profile and user identity.
         /// 
-        /// İş Akışı:
-        /// 1. İstek ve email doğrulaması
-        /// 2. Kullanıcı (Identity) oluşturma - Email ve şifre ile
-        /// 3. Müşteri (Profile) oluşturma - Profil bilgileri ile
-        /// 4. Atomik işlem - SaveChanges ile kalıcı hale getirme
+        /// Workflow:
+        /// 1. Validate request and email
+        /// 2. Create user (Identity) with email and password
+        /// 3. Create customer (Profile) with customer details
+        /// 4. Save changes atomically
         /// 
-        /// Bu tasarım "User-First" mimarisini uygulamaktadır:
-        /// - Her müşteri bir kullanıcı (Identity)
-        /// - Ancak her kullanıcı (örneğin Admin) bir müşteri olmak zorunda değil
+        /// Design: "User-First" architecture
+        /// - Each customer is a user (Identity)
+        /// - But not every user (e.g., Admin) needs to be a customer
         /// </summary>
-        /// <param name="request">Müşteri oluşturma isteği</param>
-        /// <returns>Oluşturulan müşteri bilgilerini içeren DTO</returns>
+        /// <param name="request">Customer creation request</param>
+        /// <returns>Created customer details in DTO</returns>
         public async Task<Result<CustomerDto>> CreateCustomerAsync(CreateCustomerRequest request)
         {
             try
             {
-                // ========== VALIDASYON ==========
+                // ========== VALIDATION ==========
                 
-                // Null kontrolü
+                // Check for null
                 if (request == null)
                 {
-                    return Result<CustomerDto>.Failure("Geçersiz müşteri verisi.");
+                    return Result<CustomerDto>.Failure("Invalid customer data.");
                 }
 
-                // Email alanı kontrolü
+                // Check email field
                 if (string.IsNullOrWhiteSpace(request.Email))
                 {
-                    return Result<CustomerDto>.Failure("Email adresi boş olamaz.");
+                    return Result<CustomerDto>.Failure("Email cannot be empty.");
                 }
 
                 if (string.IsNullOrWhiteSpace(request.PasswordHash))
                 {
-                    return Result<CustomerDto>.Failure("Şifre boş olamaz.");
+                    return Result<CustomerDto>.Failure("Password cannot be empty.");
                 }
 
-                // Ad ve Soyadı kontrolü
+                // Check name and surname
                 if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Surname))
                 {
-                    return Result<CustomerDto>.Failure("Ad ve soyad boş olamaz.");
+                    return Result<CustomerDto>.Failure("Name and surname cannot be empty.");
                 }
 
-                // TC Kimlik No kontrolü
+                // Check national ID
                 if (string.IsNullOrWhiteSpace(request.NationalId))
                 {
-                    return Result<CustomerDto>.Failure("TC Kimlik Numarası boş olamaz.");
+                    return Result<CustomerDto>.Failure("National ID cannot be empty.");
                 }
 
-                // ADIM 1: Identity (User) Tablosunda Email Kontrolü
-                // Bu krit kontrol - eğer bu email'de zaten bir kullanıcı varsa işlem başarısız
+                // STEP 1: Check email in User table
+                // Critical check - if email exists, operation fails
                 var existingUserByEmail = await _userRepository.GetByEmailAsync(request.Email);
                 if (existingUserByEmail != null)
                 {
-                    return Result<CustomerDto>.Failure("Bu email adresi zaten kayıtlı. Lütfen başka bir email kullanın.");
+                    return Result<CustomerDto>.Failure("This email address is already registered. Please use another email.");
                 }
 
-                // ADIM 2: Profil (Customer) Tablosunda NationalId Kontrolü
+                // STEP 2: Check national ID in Customer table
                 var existingCustomerByNationalId = await _customerRepository.GetCustomerByNationalIdAsync(request.NationalId);
                 if (existingCustomerByNationalId != null)
                 {
-                    return Result<CustomerDto>.Failure("Bu TC Kimlik Numarası ile zaten bir müşteri kayıtlı.");
+                    return Result<CustomerDto>.Failure("A customer with this national ID is already registered.");
                 }
 
-                // ========== USER (IDENTITY) OLUŞTURMA ==========
+                // ========== CREATE USER (IDENTITY) ==========
                 
                 var user = new User
                 {
                     Id = Guid.NewGuid(),
                     Email = request.Email.Trim(),
-                    // BCrypt ile hash işlemi - hassas şifre asla düz metin olarak saklanmaz
+                    // Hash password with BCrypt - sensitive password never stored as plain text
                     PasswordHash = _passwordService.HashPassword(request.PasswordHash),
                     Role = UserRole.Customer,
                     CreatedAt = DateTime.UtcNow
                 };
 
-                // ========== CUSTOMER (PROFILE) OLUŞTURMA ==========
+                // ========== CREATE CUSTOMER (PROFILE) ==========
                 
                 var customer = new Customer
                 {
                     Id = Guid.NewGuid(),
-                    // Bire-bir ilişki - Customer UserId ile User'ı referans alır
+                    // One-to-one relationship - Customer references User via UserId
                     UserId = user.Id,
                     User = user,
-                    // Profil bilgileri
+                    // Profile information
                     Name = request.Name.Trim(),
                     Surname = request.Surname.Trim(),
                     NationalId = request.NationalId.Trim(),
@@ -198,16 +198,16 @@ namespace payment_system.Application.Services.Implementations
                     CreatedAt = DateTime.UtcNow
                 };
 
-                // ========== KALICI VERİ (PERSISTENCE) ==========
+                // ========== PERSISTENCE ==========
                 
-                // CreateCustomerAsync metodu içinde User'ı Navigation Property üzerinden
-                // otomatik olarak veritabanına eklemelidir
+                // CreateCustomerAsync should automatically add User to database
+                // via Navigation Property
                 await _customerRepository.CreateCustomerAsync(customer);
                 
-                // Atomik işlem - tüm değişiklikleri bir kez kaydet
+                // Atomic operation - save all changes at once
                 await _customerRepository.SaveChangesAsync();
 
-                // ========== ÇIKTI VE DTO DÖNÜŞÜMÜ ==========
+                // ========== OUTPUT AND DTO CONVERSION ==========
                 
                 var resultDto = MapToCustomerDetailsDto(customer, new List<Account>());
                 

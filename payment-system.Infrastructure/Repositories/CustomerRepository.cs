@@ -11,8 +11,8 @@ namespace payment_system.Infrastructure.Repositories
 {
     /// <summary>
     /// Customer repository implementasyonu
-    /// Sadece Customer operasyonlarını gerçekleştirir
-    /// İş mantığı yoktur - sadece veri erişimi
+    /// Handles only customer operations
+    /// No business logic - only data access
     /// </summary>
     public class CustomerRepository : ICustomerRepository
     {      

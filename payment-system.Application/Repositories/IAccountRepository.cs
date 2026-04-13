@@ -7,70 +7,69 @@ using payment_system.Domain.Entities;
 namespace payment_system.Application.Repositories
 {
     /// <summary>
-    /// Account repository interface
-    /// Sadece Account operasyonlarını tanımlar
-    /// Infrastructure'dan bağımsız
+    /// Account repository interface.
+    /// Defines only account operations independent of infrastructure.
     /// </summary>
     public interface IAccountRepository
     {
         /// <summary>
-        /// ID'ye göre account'u getir (Customer bilgisi ile birlikte)
+        /// Get account by ID (with customer information).
         /// </summary>
-        /// <param name="accountId">Account ID'si</param>
-        /// <returns>Account entity veya null</returns>
+        /// <param name="accountId">Account ID</param>
+        /// <returns>Account entity or null</returns>
         Task<Account?> GetByIdAsync(Guid accountId);
 
         /// <summary>
-        /// Customer ID'sine göre account'u getir
+        /// Get account by customer ID.
         /// </summary>
-        /// <param name="customerId">Customer ID'si</param>
-        /// <returns>Account entity veya null</returns>
+        /// <param name="customerId">Customer ID</param>
+        /// <returns>Account entity or null</returns>
         Task<Account?> GetByCustomerIdAsync(Guid customerId);
 
         /// <summary>
-        /// Customer ID'sine göre tüm account'ları getir
+        /// Get all accounts for a customer.
         /// </summary>
-        /// <param name="customerId">Customer ID'si</param>
-        /// <returns>Account listesi</returns>
+        /// <param name="customerId">Customer ID</param>
+        /// <returns>Account list</returns>
         Task<IEnumerable<Account>> GetAllByCustomerIdAsync(Guid customerId);
 
         /// <summary>
-        /// Tüm account'ları getir
+        /// Get all accounts.
         /// </summary>
-        /// <returns>Account listesi</returns>
+        /// <returns>Account list</returns>
         Task<IEnumerable<Account>> GetAllAsync();
 
         /// <summary>
-        /// Belirli bakiye aralığındaki account'ları getir
+        /// Get accounts within a balance range.
         /// </summary>
-        /// <param name="minBalance">Minimum bakiye</param>
-        /// <param name="maxBalance">Maximum bakiye</param>
-        /// <returns>Filtrelenmiş account listesi</returns>
+        /// <param name="minBalance">Minimum balance</param>
+        /// <param name="maxBalance">Maximum balance</param>
+        /// <returns>Filtered account list</returns>
         Task<IEnumerable<Account>> GetAccountsByBalanceRangeAsync(decimal minBalance, decimal maxBalance);
 
         /// <summary>
-        /// Yeni account ekle
+        /// Add a new account.
         /// </summary>
-        /// <param name="account">Eklenecek account entity'si</param>
+        /// <param name="account">Account entity to add</param>
         /// <returns>Task</returns>
         Task AddAsync(Account account);
 
         /// <summary>
-        /// Mevcut account'u güncelle
+        /// Update an existing account.
         /// </summary>
-        /// <param name="account">Güncellenecek account entity'si</param>
+        /// <param name="account">Account entity to update</param>
         /// <returns>Task</returns>
         Task UpdateAsync(Account account);
 
         /// <summary>
-        /// Account'u sil
+        /// Delete an account.
         /// </summary>
-        /// <param name="accountId">Silinecek account'un ID'si</param>
+        /// <param name="accountId">Account ID to delete</param>
         /// <returns>Task</returns>
         Task DeleteAsync(Guid accountId);
 
         /// <summary>
-        /// Veritabanındaki tüm değişiklikleri kaydet
+        /// Save all changes to database.
         /// </summary>
         /// <returns>Task</returns>
         Task SaveChangesAsync();

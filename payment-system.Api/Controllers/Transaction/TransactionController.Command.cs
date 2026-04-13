@@ -7,11 +7,11 @@ namespace payment_system.Api.Controllers
 {
     public partial class TransactionController : ControllerBase
     {
-        ///<summary>
-        /// Create a new transaction
+        /// <summary>
+        /// Create a new transaction.
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "Admin,Customer")]  // ✅ GÜVENLIK: Admin ve Customer transaction yapabilir
+        [Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TransactionDto>> Create(CreateTransactionRequest request)

@@ -18,42 +18,42 @@ namespace payment_system.Api.Controllers.Auth
         }
 
         /// <summary>
-        /// Kullanıcı giriş işlemini gerçekleştirir ve JWT döner.
+        /// Perform user login and return JWT token.
         /// </summary>
-        /// <param name="request">Email ve Şifre bilgilerini içeren istek</param>
-        /// <returns>Başarılıysa Token, başarısızsa hata mesajı</returns>
-        [AllowAnonymous] // Herkes erişebilir, çünkü henüz giriş yapılmadı
+        /// <param name="request">Login request with email and password</param>
+        /// <returns>JWT token if successful, error message if failed</returns>
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            // 1. İş mantığını (Service) tetikle
+            // Execute business logic (Service)
             var result = await _authService.LoginAsync(request);
 
-            // 2. Sonucu kontrol et
+            // Check result
             if (!result.IsSuccess)
             {
-                // Güvenlik gereği 401 Unauthorized dönüyoruz
+                // Return 401 for security
                 return Unauthorized(new { message = result.Message });
             }
 
-            // 3. Başarılıysa 200 OK ve Token bilgilerini dön
+            // Return 200 OK with token information
             return Ok(result.Data);
         }
 
         /// <summary>
-        /// Yeni kullanıcı kaydı (Register)
+        /// Register a new user.
         /// 
-        /// "User-First" Mimarisi:
-        /// 1. Rol seçerek kullanıcı oluştur (Customer, Admin, Staff)
-        /// 2. Customer ise profil bilgileri ekle
-        /// 3. JWT token döndür
+        /// "User-First" Architecture:
+        /// 1. Create user with selected role (Customer, Admin)
+        /// 2. Add profile information if Customer
+        /// 3. Return JWT token
         /// 
-        /// Örnek Customer Kaydı:
+        /// Example Customer Registration:
         /// {
         ///   "email": "customer@example.com",
         ///   "password": "Pass123!",
         ///   "confirmPassword": "Pass123!",
-        ///   "role": 0,  // 0 = Customer, 1 = Admin
+        ///   "role": 0,
         ///   "name": "Ahmet",
         ///   "surname": "Yılmaz",
         ///   "nationalId": "12345678901",
@@ -61,33 +61,33 @@ namespace payment_system.Api.Controllers.Auth
         ///   "dateOfBirth": "1990-05-15"
         /// }
         /// 
-        /// Örnek Admin Kaydı (Profil bilgileri isteğe bağlı):
+        /// Example Admin Registration (Profile optional):
         /// {
         ///   "email": "admin@example.com",
         ///   "password": "Pass123!",
         ///   "confirmPassword": "Pass123!",
-        ///   "role": 1  // 1 = Admin (profil oluşturulmaz)
+        ///   "role": 1
         /// }
         /// </summary>
-        /// <param name="request">Kayıt isteği</param>
-        /// <returns>JWT token veya hata mesajı</returns>
-        [AllowAnonymous] // Kayıt açık olmalı
+        /// <param name="request">Registration request</param>
+        /// <returns>JWT token or error message</returns>
+        [AllowAnonymous]
         [HttpPost("register")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            // 1. İş mantığını (Service) tetikle
+            // Execute business logic (Service)
             var result = await _authService.RegisterAsync(request);
 
-            // 2. Sonucu kontrol et
+            // Check result
             if (!result.IsSuccess)
             {
-                // Güvenlik gereği 400 Bad Request dönüyoruz
+                // Return 400 for security
                 return BadRequest(new { message = result.Message });
             }
 
-            // 3. Başarılıysa 201 Created ve Token bilgilerini dön
+            // Return 201 Created with token information
             return CreatedAtAction(nameof(Login), new { email = request.Email }, result.Data);
         }
 

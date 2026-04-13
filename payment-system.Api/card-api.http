@@ -2,31 +2,31 @@
 @token = your_jwt_token_here
 
 ### ============================================
-### KART YÖNETİMİ API TESTLERI
+### CARD MANAGEMENT API TESTS
 ### ============================================
 
-### 1. Tüm Kartları Listele
+### 1. Get All Cards
 GET {{base}}/api/card
 Authorization: Bearer {{token}}
 Accept: application/json
 
 ###
 
-### 2. Belirli Bir Kartı Getir
+### 2. Get Specific Card
 GET {{base}}/api/card/{card-id}
 Authorization: Bearer {{token}}
 Accept: application/json
 
 ###
 
-### 3. Hesaba Ait Kartları Listele
+### 3. Get Cards for Account
 GET {{base}}/api/card/account/{account-id}
 Authorization: Bearer {{token}}
 Accept: application/json
 
 ###
 
-### 4. Yeni Kart Oluştur
+### 4. Create New Card
 POST {{base}}/api/card
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -41,7 +41,7 @@ Content-Type: application/json
 
 ###
 
-### 5. Kartı Güncelle (Status Değiştir)
+### 5. Update Card (Change Status)
 PUT {{base}}/api/card/{card-id}
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -53,17 +53,17 @@ Content-Type: application/json
 
 ###
 
-### 6. Kartı Sil
+### 6. Delete Card
 DELETE {{base}}/api/card/{card-id}
 Authorization: Bearer {{token}}
 
 ###
 
 ### ============================================
-### NOTLAR:
-### - {card-id}: Geçerli bir kart GUID'i ile değiştir
-### - {account-id}: Geçerli bir hesap GUID'i ile değiştir
-### - {{token}}: JWT token'ı gir
+### NOTES:
+### - {card-id}: Replace with valid card GUID
+### - {account-id}: Replace with valid account GUID
+### - {{token}}: Enter JWT token
 ### - CardStatus Enum Values:
 ###   0 = None
 ###   1 = WaitingForApproval

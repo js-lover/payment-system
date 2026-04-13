@@ -11,16 +11,15 @@ using payment_system.Infrastructure.Persistence.Contexts;
 namespace payment_system.Infrastructure.Repositories
 {
     /// <summary>
-    /// Transaction repository implementasyonu
-    /// Sadece Transaction operasyonlarını gerçekleştirir
-    /// İş mantığı yoktur - sadece veri erişimi
+    /// Transaction repository implementation.
+    /// Handles only transaction operations with no business logic.
     /// </summary>
     public class TransactionRepository : ITransactionRepository
     {
         private readonly AppDbContext _db;
 
         /// <summary>
-        /// Constructor - DbContext inject edilir
+        /// Constructor - DbContext is injected.
         /// </summary>
         /// <param name="db">Application DbContext</param>
         public TransactionRepository(AppDbContext db)
@@ -31,7 +30,7 @@ namespace payment_system.Infrastructure.Repositories
         // ===== READ OPERATIONS =====
 
         /// <summary>
-        /// ID'ye göre transaction'ı getir
+        /// Get transaction by ID.
         /// </summary>
         public async Task<Transaction?> GetByIdAsync(Guid transactionId)
         {
@@ -44,19 +43,19 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Tüm transaction'ları getir (parent transaction'ları)
+        /// Get all transactions (parent transactions only).
         /// </summary>
         public async Task<IEnumerable<Transaction>> GetAllAsync()
         {
             return await _db.Transactions
                 .Include(t => t.ChildTransactions)
-                .Where(t => t.ReferenceTransactionId == null)  // ← Sadece parent transaction'lar
+                .Where(t => t.ReferenceTransactionId == null)
                 .OrderByDescending(t => t.TransactionDate)
                 .ToListAsync();
         }
 
         /// <summary>
-        /// Belirli account'a ait transaction'ları getir
+        /// Get transactions for a specific account.
         /// </summary>
         public async Task<IEnumerable<Transaction>> GetByAccountIdAsync(Guid accountId)
         {
@@ -71,7 +70,7 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Tarih aralığında transaction'ları getir
+        /// Get transactions within a date range.
         /// </summary>
         public async Task<IEnumerable<Transaction>> GetByDateRangeAsync(DateTime startDate, DateTime endDate)
         {
@@ -86,11 +85,11 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Transaction tipine göre transaction'ları getir
+        /// Get transactions by transaction type.
         /// </summary>
         public async Task<IEnumerable<Transaction>> GetByTransactionTypeAsync(string transactionType)
         {
-            // Validasyon: string'i enum'a dönüştür
+            // Convert string to enum
             if (!Enum.TryParse<TransactionType>(transactionType, ignoreCase: true, out var type))
                 return Enumerable.Empty<Transaction>();
 
@@ -104,7 +103,7 @@ namespace payment_system.Infrastructure.Repositories
         // ===== WRITE OPERATIONS =====
 
         /// <summary>
-        /// Yeni transaction ekle
+        /// Add a new transaction.
         /// </summary>
         public async Task AddAsync(Transaction transaction)
         {
@@ -115,14 +114,13 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Mevcut transaction'ı güncelle
+        /// Update an existing transaction.
         /// </summary>
         public async Task UpdateAsync(Transaction transaction)
         {
             if (transaction == null)
                 throw new ArgumentNullException(nameof(transaction));
 
-            // Mevcut transaction var mı?
             var existingTransaction = await _db.Transactions.FindAsync(transaction.Id);
             if (existingTransaction == null)
                 throw new InvalidOperationException($"Transaction with ID {transaction.Id} not found");
@@ -131,7 +129,7 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Transaction'ı sil
+        /// Delete a transaction.
         /// </summary>
         public async Task DeleteAsync(Guid transactionId)
         {
@@ -146,7 +144,7 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Veritabanındaki tüm değişiklikleri kaydet
+        /// Save all changes to database.
         /// </summary>
         public async Task SaveChangesAsync()
         {

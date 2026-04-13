@@ -20,22 +20,22 @@ namespace payment_system.Infrastructure.Repositories
 
 
         /// <summary>
-        /// Retrieves a user by their email address (case-insensitive).
+        /// Get a user by email address (case-insensitive).
         /// </summary>
-        /// <param name="email">Email adresi</param>
-        /// <returns>User nesnesi veya null</returns>
+        /// <param name="email">Email address</param>
+        /// <returns>User object or null</returns>
         public async Task<User?> GetByEmailAsync(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
                 return null;
 
-            // Case-insensitive email karşılaştırması
+            // Case-insensitive email comparison
             return await _db.Users
                 .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
         }
 
         /// <summary>
-        /// Yeni kullanıcı oluştur (User tablosuna ekle)
+        /// Create a new user (add to User table).
         /// </summary>
         public async Task<User> CreateAsync(User user)
         {
@@ -47,7 +47,7 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Tüm değişiklikleri veritabanına kaydet
+        /// Save all changes to database.
         /// </summary>
         public async Task SaveChangesAsync()
         {
@@ -55,7 +55,7 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// ID'ye göre kullanıcı getir
+        /// Get user by ID.
         /// </summary>
         public async Task<User?> GetByIdAsync(Guid id)
         {
@@ -66,7 +66,7 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Tüm kullanıcıları getir
+        /// Get all users.
         /// </summary>
         public async Task<IEnumerable<User>> GetAllAsync()
         {
@@ -74,13 +74,13 @@ namespace payment_system.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Tüm Admin role'deki kullanıcıları getir (Customer profili ile birlikte)
+        /// Get all users with Admin role (with customer profile if exists).
         /// </summary>
         public async Task<List<User>> GetAllAdminsByRoleAsync()
         {
             return await _db.Users
                 .Where(u => u.Role == payment_system.Domain.Enums.UserRole.Admin && !u.IsDeleted)
-                .Include(u => u.Customer)  // Customer profili varsa include et
+                .Include(u => u.Customer)
                 .ToListAsync();
         }
     }

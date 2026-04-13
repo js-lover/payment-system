@@ -13,7 +13,7 @@ namespace payment_system.Api.Controllers.Admin
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]  // Security: Only Admin can access this controller
+    [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -24,38 +24,7 @@ namespace payment_system.Api.Controllers.Admin
         }
 
         /// <summary>
-        /// Retrieves all admin users from the system.
-        /// 
-        /// Security: Only Admin role users can access this endpoint.
-        /// Authorization: [Authorize(Roles = "Admin")]
-        /// 
-        /// Example Request:
-        /// GET /api/admin
-        /// Authorization: Bearer {jwt_token}
-        /// 
-        /// Successful Response (200):
-        /// [
-        ///   {
-        ///     "id": "550e8400-e29b-41d4-a716-446655440000",
-        ///     "email": "admin1@example.com",
-        ///     "name": "Administrator",
-        ///     "surname": "First"
-        ///   },
-        ///   {
-        ///     "id": "550e8400-e29b-41d4-a716-446655440001",
-        ///     "email": "admin2@example.com",
-        ///     "name": "Administrator",
-        ///     "surname": "Second"
-        ///   }
-        /// ]
-        /// 
-        /// Failed Response (401):
-        /// {
-        ///   "type": "https://tools.ietf.org/html/rfc7235#section-3.1",
-        ///   "title": "Unauthorized",
-        ///   "status": 401,
-        ///   "traceId": "..."
-        /// }
+        /// Get all admin users from the system.
         /// </summary>
         /// <returns>List of all admin users</returns>
         [HttpGet]
@@ -76,25 +45,7 @@ namespace payment_system.Api.Controllers.Admin
         }
 
         /// <summary>
-        /// Creates a new admin user account.
-        /// 
-        /// Security: Only Admin role users can create new admins.
-        /// Authorization: [Authorize(Roles = "Admin")]
-        /// 
-        /// Request Body:
-        /// {
-        ///   "email": "newadmin@example.com",
-        ///   "password": "SecurePass123!@#",
-        ///   "confirmPassword": "SecurePass123!@#",
-        ///   "role": 1  // 1 = Admin (Customer = 0, Admin = 1)
-        /// }
-        /// 
-        /// Successful Response (201):
-        /// {
-        ///   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        ///   "email": "newadmin@example.com",
-        ///   "role": 1
-        /// }
+        /// Create a new admin user account.
         /// </summary>
         /// <param name="request">Admin registration request</param>
         /// <returns>Created admin with JWT token</returns>
@@ -106,8 +57,7 @@ namespace payment_system.Api.Controllers.Admin
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<dynamic>> CreateAdmin([FromBody] RegisterRequest request)
         {
-            // Admin creation should automatically set role to Admin
-            // For security, we override the role from the request
+            // Set role to Admin for security
             request.Role = UserRole.Admin;
 
             var result = await _authService.RegisterAsync(request);
@@ -121,13 +71,7 @@ namespace payment_system.Api.Controllers.Admin
         }
 
         /// <summary>
-        /// Admin Dashboard Statistics (To be implemented)
-        /// 
-        /// Expected features:
-        /// - Total customer count
-        /// - Total transaction count
-        /// - Daily revenue
-        /// - Recent login activity
+        /// Get admin dashboard statistics. (To be implemented)
         /// </summary>
         [HttpGet("dashboard")]
         [Authorize(Roles = "Admin")]
@@ -136,7 +80,7 @@ namespace payment_system.Api.Controllers.Admin
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public ActionResult<dynamic> GetDashboard()
         {
-            // TODO: Return statistics data
+            // TODO: Implement dashboard statistics
             return Ok(new
             {
                 message = "Admin Dashboard - To be implemented",

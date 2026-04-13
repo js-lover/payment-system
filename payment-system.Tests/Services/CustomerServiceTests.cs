@@ -38,7 +38,7 @@ namespace payment_system.Tests
         #region CreateCustomerAsync Tests
 
         /// <summary>
-        /// Test 1: Başarılı müşteri oluşturma
+        /// Test successful customer creation with valid data.
         /// </summary>
         [Fact]
         public async Task CreateCustomerAsync_ValidData_ReturnsSuccess()
@@ -92,7 +92,7 @@ namespace payment_system.Tests
         }
 
         /// <summary>
-        /// Test 2: Email zaten kayıtlı (Hata beklenir)
+        /// Test customer creation fails when email is already registered.
         /// </summary>
         [Fact]
         public async Task CreateCustomerAsync_EmailExists_ReturnsFail()
@@ -133,7 +133,7 @@ namespace payment_system.Tests
         }
 
         /// <summary>
-        /// Test 3: NationalId zaten kayıtlı (Hata beklenir)
+        /// Test customer creation fails when national ID is already registered.
         /// </summary>
         [Fact]
         public async Task CreateCustomerAsync_NationalIdExists_ReturnsFail()
@@ -180,7 +180,7 @@ namespace payment_system.Tests
         }
 
         /// <summary>
-        /// Test 4: Null request (Hata beklenir)
+        /// Test customer creation fails with null request.
         /// </summary>
         [Fact]
         public async Task CreateCustomerAsync_NullRequest_ReturnsFail()
@@ -195,7 +195,7 @@ namespace payment_system.Tests
         }
 
         /// <summary>
-        /// Test 5: Boş email (Hata beklenir)
+        /// Test customer creation fails when email is empty.
         /// </summary>
         [Fact]
         public async Task CreateCustomerAsync_EmptyEmail_ReturnsFail()
@@ -222,7 +222,7 @@ namespace payment_system.Tests
         }
 
         /// <summary>
-        /// Test 6: Boş şifre (Hata beklenir)
+        /// Test customer creation fails when password is empty.
         /// </summary>
         [Fact]
         public async Task CreateCustomerAsync_EmptyPassword_ReturnsFail()
@@ -249,7 +249,7 @@ namespace payment_system.Tests
         }
 
         /// <summary>
-        /// Test 7: Email case-insensitive kontrol
+        /// Test email comparison is case-insensitive.
         /// </summary>
         [Fact]
         public async Task CreateCustomerAsync_EmailCaseInsensitive_ReturnsFail()
@@ -286,7 +286,7 @@ namespace payment_system.Tests
         }
 
         /// <summary>
-        /// Test 8: Password hash'leme doğrulanması
+        /// Test password hashing is verified correctly.
         /// </summary>
         [Fact]
         public async Task CreateCustomerAsync_PasswordHashingVerified()
@@ -335,7 +335,7 @@ namespace payment_system.Tests
         #region GetCustomerByIdAsync Tests
 
         /// <summary>
-        /// Test 9: Müşteri ID ile getir (Başarılı)
+        /// Test get customer by ID returns success with valid ID.
         /// </summary>
         [Fact]
         public async Task GetCustomerByIdAsync_ValidId_ReturnsSuccess()
@@ -379,7 +379,7 @@ namespace payment_system.Tests
         }
 
         /// <summary>
-        /// Test 10: Geçersiz müşteri ID (Hata beklenir)
+        /// Test get customer by ID fails with invalid ID.
         /// </summary>
         [Fact]
         public async Task GetCustomerByIdAsync_InvalidId_ReturnsFail()
@@ -397,7 +397,7 @@ namespace payment_system.Tests
         #region GetAllCustomersAsync Tests
 
         /// <summary>
-        /// Test 11: Tüm müşterileri getir
+        /// Test get all customers returns all customer records.
         /// </summary>
         [Fact]
         public async Task GetAllCustomersAsync_ReturnsAllCustomers()

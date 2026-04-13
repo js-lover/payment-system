@@ -11,7 +11,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Database Context Configuration
+// Configure database context
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlite(
@@ -19,8 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseLazyLoadingProxies();
 });
 
-// JWT Authentication Configuration
-// Read settings from appsettings.json
+// Configure JWT authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = Encoding.ASCII.GetBytes(jwtSettings["Secret"]!);
 
@@ -46,20 +45,20 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Dependency Injection Configuration
+// Register services in dependency injection container
 builder.Services.AddDatabaseServices(builder.Configuration);
 builder.Services.AddRepositories();
 builder.Services.AddApplicationServices();
 
-// AutoMapper Configuration
+// Configure AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddSwaggerDocumentation(); // Note: JWT support is configured via JwtBearerDefaults
+builder.Services.AddSwaggerDocumentation();
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Middleware Configuration
+// Configure middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -72,9 +71,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Middleware execution order is critical:
-app.UseAuthentication(); // 1. Identify the user (Who are you?)
-app.UseAuthorization();  // 2. Check permissions (Are you allowed to do this?)
+// Middleware execution order matters:
+// 1. Identify the user (Authentication)
+// 2. Check permissions (Authorization)
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

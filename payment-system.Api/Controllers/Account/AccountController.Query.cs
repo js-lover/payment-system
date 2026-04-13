@@ -9,7 +9,7 @@ namespace payment_system.Api.Controllers
         /// <summary>
         /// Retrieves all accounts from the system.
         /// </summary>
-        [Authorize(Roles = "Admin,Customer")]  // Security: Only Admin and Customer can access this endpoint
+        [Authorize(Roles = "Admin,Customer")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -23,7 +23,7 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieves detailed account information including associated transactions.
+        /// Get detailed account information including associated transactions.
         /// </summary>
         [HttpGet("{accountId}/details")]
         [Authorize(Roles = "Admin")]
@@ -39,7 +39,7 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieves the current balance of an account.
+        /// Get the current balance of an account.
         /// </summary>
         [HttpGet("{accountId}/balance")]
         [Authorize(Roles = "Admin")]
@@ -55,7 +55,7 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieves an account by customer identifier.
+        /// Get an account by customer ID.
         /// </summary>
         [HttpGet("customer/{customerId}")]
         [Authorize(Roles = "Admin")]
@@ -71,7 +71,7 @@ namespace payment_system.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieves accounts whose balance falls within the specified range.
+        /// Get accounts within a specific balance range.
         /// </summary>
         [HttpGet("balance-range")]
         [Authorize(Roles = "Admin")]

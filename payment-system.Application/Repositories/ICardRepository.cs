@@ -6,71 +6,71 @@ using payment_system.Domain.Entities;
 namespace payment_system.Application.Repositories
 {
     /// <summary>
-    /// Kart repository arayüzü
-    /// Veritabanı operasyonlarını tanımlar
+    /// Card repository interface.
+    /// Defines database operations for cards.
     /// </summary>
     public interface ICardRepository
     {
         // ===== READ Operations =====
 
         /// <summary>
-        /// ID'ye göre kartı getir
+        /// Get card by ID.
         /// </summary>
         Task<Card?> GetByIdAsync(Guid cardId);
 
         /// <summary>
-        /// Tüm kartları getir
+        /// Get all cards.
         /// </summary>
         Task<IEnumerable<Card>> GetAllAsync();
 
         /// <summary>
-        /// Account'a ait tüm kartları getir
+        /// Get all cards for an account.
         /// </summary>
         Task<IEnumerable<Card>> GetAllByAccountIdAsync(Guid accountId);
 
         /// <summary>
-        /// Kart numarasına göre kartı getir (unique olduğu için)
+        /// Get card by card number (unique).
         /// </summary>
         Task<Card?> GetByCardNumberAsync(string cardNumber);
 
         /// <summary>
-        /// Active kartları getir (belirli bir account'a ait)
+        /// Get active cards for an account.
         /// </summary>
         Task<IEnumerable<Card>> GetActiveCardsByAccountIdAsync(Guid accountId);
 
         // ===== WRITE Operations =====
 
         /// <summary>
-        /// Yeni kart oluştur
+        /// Create a new card.
         /// </summary>
         Task<Card> CreateAsync(Card card);
 
         /// <summary>
-        /// Kartı güncelle
+        /// Update a card.
         /// </summary>
         Task<Card> UpdateAsync(Card card);
 
         // ===== DELETE Operations =====
 
         /// <summary>
-        /// Kartı sil
+        /// Delete a card.
         /// </summary>
         Task<bool> DeleteAsync(Guid cardId);
 
         // ===== CHECK Operations =====
 
         /// <summary>
-        /// Kartın var olup olmadığını kontrol et
+        /// Check if a card exists.
         /// </summary>
         Task<bool> ExistsAsync(Guid cardId);
 
         /// <summary>
-        /// Kart numarasının zaten var olup olmadığını kontrol et
+        /// Check if a card number already exists.
         /// </summary>
         Task<bool> CardNumberExistsAsync(string cardNumber);
 
         /// <summary>
-        /// Account'ın kartı olup olmadığını kontrol et
+        /// Check if account has a card.
         /// </summary>
         Task<bool> AccountHasCardAsync(Guid accountId, Guid cardId);
     }

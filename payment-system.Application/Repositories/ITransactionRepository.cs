@@ -6,70 +6,69 @@ using payment_system.Domain.Entities;
 namespace payment_system.Application.Repositories
 {
     /// <summary>
-    /// Transaction repository interface
-    /// Sadece Transaction operasyonlarını tanımlar
-    /// Infrastructure'dan bağımsız
+    /// Transaction repository interface.
+    /// Defines only transaction operations independent of infrastructure.
     /// </summary>
     public interface ITransactionRepository
     {
         /// <summary>
-        /// ID'ye göre transaction'ı getir (child transaction'ları ile birlikte)
+        /// Get transaction by ID (with child transactions).
         /// </summary>
-        /// <param name="transactionId">Transaction ID'si</param>
-        /// <returns>Transaction entity veya null</returns>
+        /// <param name="transactionId">Transaction ID</param>
+        /// <returns>Transaction entity or null</returns>
         Task<Transaction?> GetByIdAsync(Guid transactionId);
 
         /// <summary>
-        /// Tüm transaction'ları getir (parent transaction'ları, child'ları ile)
+        /// Get all transactions (parent transactions with children).
         /// </summary>
-        /// <returns>Transaction listesi</returns>
+        /// <returns>Transaction list</returns>
         Task<IEnumerable<Transaction>> GetAllAsync();
 
         /// <summary>
-        /// Belirli account'a ait transaction'ları getir
+        /// Get transactions for a specific account.
         /// </summary>
-        /// <param name="accountId">Account ID'si</param>
-        /// <returns>Account'a ait transaction listesi</returns>
+        /// <param name="accountId">Account ID</param>
+        /// <returns>Transactions for the account</returns>
         Task<IEnumerable<Transaction>> GetByAccountIdAsync(Guid accountId);
 
         /// <summary>
-        /// Tarih aralığında transaction'ları getir
+        /// Get transactions within a date range.
         /// </summary>
-        /// <param name="startDate">Başlangıç tarihi</param>
-        /// <param name="endDate">Bitiş tarihi</param>
-        /// <returns>Filtrelenmiş transaction listesi</returns>
+        /// <param name="startDate">Start date</param>
+        /// <param name="endDate">End date</param>
+        /// <returns>Filtered transaction list</returns>
         Task<IEnumerable<Transaction>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
 
         /// <summary>
-        /// Transaction tipine göre transaction'ları getir (Sale, Refund, vb)
+        /// Get transactions by type (Sale, Refund, etc).
         /// </summary>
-        /// <param name="transactionType">Transaction tipi string olarak</param>
-        /// <returns>Filtrelenmiş transaction listesi</returns>
+        /// <param name="transactionType">Transaction type as string</param>
+        /// <returns>Filtered transaction list</returns>
         Task<IEnumerable<Transaction>> GetByTransactionTypeAsync(string transactionType);
 
         /// <summary>
-        /// Yeni transaction ekle
+        /// Add a new transaction.
         /// </summary>
-        /// <param name="transaction">Eklenecek transaction entity'si</param>
+        /// <param name="transaction">Transaction entity to add</param>
         /// <returns>Task</returns>
         Task AddAsync(Transaction transaction);
 
         /// <summary>
-        /// Mevcut transaction'ı güncelle
+        /// Update an existing transaction.
         /// </summary>
-        /// <param name="transaction">Güncellenecek transaction entity'si</param>
+        /// <param name="transaction">Transaction entity to update</param>
         /// <returns>Task</returns>
         Task UpdateAsync(Transaction transaction);
 
         /// <summary>
-        /// Transaction'ı sil
+        /// Delete a transaction.
         /// </summary>
-        /// <param name="transactionId">Silinecek transaction'un ID'si</param>
+        /// <param name="transactionId">Transaction ID to delete</param>
         /// <returns>Task</returns>
         Task DeleteAsync(Guid transactionId);
 
         /// <summary>
-        /// Veritabanındaki tüm değişiklikleri kaydet
+        /// Save all changes to database.
         /// </summary>
         /// <returns>Task</returns>
         Task SaveChangesAsync();
