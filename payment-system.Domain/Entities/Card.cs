@@ -15,7 +15,6 @@ namespace payment_system.Domain.Entities
         //expiration date in MM/YY format (e.g., "12/25")
         public string ExpirationDate { get; set; } = null!;
         //cvv cannot be stored in plain text and must be encrypted or never save to db
-        public string CVC { get; set; } = null!;
         public Guid AccountId { get; set; }
         public virtual Account? Account { get; set; }
         public CardStatus Status { get; set; }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using payment_system.Application.Repositories;
 using payment_system.Domain.Entities;
 using payment_system.Application.Services.Interfaces;
@@ -18,46 +19,20 @@ namespace payment_system.Application.Services.Implementations
         private readonly IAccountRepository _accountRepository;
         private readonly IPasswordService _passwordService;
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
         public CustomerService(
             ICustomerRepository customerRepository, 
             IAccountRepository accountRepository, 
             IPasswordService passwordService,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            IMapper mapper)
         {
             _customerRepository = customerRepository;
             _accountRepository = accountRepository;
             _passwordService = passwordService;
             _userRepository = userRepository;
-        }
-
-
-       
-        /// <summary>
-        /// Maps a Customer entity and its associated accounts to a CustomerDto.
-        /// </summary>
-        /// <param name="customer"></param>
-        /// <param name="accounts"></param>
-        /// <returns></returns>
-        private CustomerDto MapToCustomerDetailsDto(Customer customer, IEnumerable<Account> accounts)
-        {
-            return new CustomerDto
-            {
-                Id = customer.Id,
-                Name = customer.Name,
-                Surname = customer.Surname,
-                Email = customer.User.Email,
-                NationalId = customer.NationalId,
-                PhoneNumber = customer.PhoneNumber,
-                Accounts = accounts.Select(a => new AccountDto
-                {
-                    Id = a.Id,
-                    AccountNumber = a.AccountNumber,
-                    Name = a.Name,
-                    Balance = a.Balance,
-                    Currency = a.Currency.ToString()
-                }).ToList()
-            };
+            _mapper = mapper;
         }
 
         //=======READ Operations======
@@ -76,10 +51,8 @@ namespace payment_system.Application.Services.Implementations
             if (customer == null)
                 return Result<CustomerDto>.Failure("Customer not found.");
 
-            var accounts = await _accountRepository.GetAllByCustomerIdAsync(id);
-            var result = MapToCustomerDetailsDto(customer, accounts);
-
-            return Result<CustomerDto>.Success(result);
+            var customerDto = _mapper.Map<CustomerDto>(customer);
+            return Result<CustomerDto>.Success(customerDto);
         }
 
 
@@ -90,14 +63,7 @@ namespace payment_system.Application.Services.Implementations
         public async Task<Result<IEnumerable<CustomerDto>>> GetAllCustomersAsync()
         {
             var customers = await _customerRepository.GetAllCustomersAsync();
-            var customerDtos = new List<CustomerDto>();
-
-            foreach (var customer in customers)
-            {
-                var accounts = await _accountRepository.GetAllByCustomerIdAsync(customer.Id);
-                customerDtos.Add(MapToCustomerDetailsDto(customer, accounts));
-            }
-
+            var customerDtos = _mapper.Map<IEnumerable<CustomerDto>>(customers);
             return Result<IEnumerable<CustomerDto>>.Success(customerDtos);
         }
 
@@ -209,7 +175,7 @@ namespace payment_system.Application.Services.Implementations
 
                 // ========== OUTPUT AND DTO CONVERSION ==========
                 
-                var resultDto = MapToCustomerDetailsDto(customer, new List<Account>());
+                var resultDto = _mapper.Map<CustomerDto>(customer);
                 
                 return Result<CustomerDto>.Success(
                     resultDto, 
@@ -244,7 +210,7 @@ namespace payment_system.Application.Services.Implementations
             await _customerRepository.DeleteCustomerAsync(id);
             await _customerRepository.SaveChangesAsync();
 
-            var result = MapToCustomerDetailsDto(customer, new List<Account>());
+            var result = _mapper.Map<CustomerDto>(customer);
             return Result<CustomerDto>.Success(result);
         }
 

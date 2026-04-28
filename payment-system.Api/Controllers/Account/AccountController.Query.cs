@@ -74,7 +74,7 @@ namespace payment_system.Api.Controllers
         /// Get accounts within a specific balance range.
         /// </summary>
         [HttpGet("balance-range")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<AccountDetailsDto>>> GetByBalanceRange(

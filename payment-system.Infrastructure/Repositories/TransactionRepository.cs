@@ -139,7 +139,7 @@ namespace payment_system.Infrastructure.Repositories
             var transaction = await GetByIdAsync(transactionId);
             if (transaction != null)
             {
-                _db.Transactions.Remove(transaction);
+               transaction.IsDeleted = true;
             }
         }
 

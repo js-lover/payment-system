@@ -180,8 +180,7 @@ namespace payment_system.Application.Services.Implementations
                 if (minBalance < 0 || maxBalance < 0 || minBalance > maxBalance)
                     return Result<IEnumerable<AccountDetailsDto>>.Failure("Geçersiz bakiye aralığı");
 
-                var accounts = await _accountRepository.GetAllAsync();
-                var filteredAccounts = accounts.Where(a => a.Balance >= minBalance && a.Balance <= maxBalance).ToList();
+                var filteredAccounts = await _accountRepository.GetAccountsByBalanceRangeAsync(minBalance, maxBalance);
 
                 var result = new List<AccountDetailsDto>();
                 foreach (var account in filteredAccounts)
@@ -246,7 +245,7 @@ namespace payment_system.Application.Services.Implementations
 
             // Unique ID oluştur (Ticks + Random)
             var random = new System.Random();
-            var uniqueNumber = $"{DateTime.UtcNow.Ticks}{random.Next(1000, 9999)}";
+            var uniqueNumber = $"TR{DateTime.UtcNow:yyyyMMdd}{Guid.NewGuid().ToString("N")[..10].ToUpper()}";
 
             // İlk 18 karakteri al (garantili sayısal)
             var numberPart = uniqueNumber.Substring(0, 18);

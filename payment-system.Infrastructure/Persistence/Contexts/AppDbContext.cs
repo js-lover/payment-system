@@ -20,7 +20,7 @@ namespace payment_system.Infrastructure.Persistence.Contexts
         public DbSet<Card> Cards { get; set; } = null!;
         public DbSet<Transaction> Transactions { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
-
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

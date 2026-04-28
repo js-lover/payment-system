@@ -17,7 +17,6 @@ namespace payment_system.Infrastructure.Persistence.Configurations
             {
                 t.HasCheckConstraint("CK_Card_CardNumber_Format", "length(CardNumber) = 16");
                 t.HasCheckConstraint("CK_Card_ExpirationDate_Format", "length(ExpirationDate) = 5");
-                t.HasCheckConstraint("CK_Card_CVC_Format", "length(CVC) = 3");
             }).HasQueryFilter(x => !x.IsDeleted);
 
             builder.HasKey(x => x.Id);
@@ -48,12 +47,6 @@ namespace payment_system.Infrastructure.Persistence.Configurations
             builder.Property(x => x.ExpirationDate)
                 .IsRequired()
                 .HasMaxLength(5)
-                .IsFixedLength();
-
-            //checks if CVC is 3 digits
-            builder.Property(x => x.CVC)
-                .IsRequired()
-                .HasMaxLength(3)
                 .IsFixedLength();
 
         }

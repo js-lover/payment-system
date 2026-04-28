@@ -22,7 +22,7 @@ namespace payment_system.Application.Common.Mappings
                     opt => opt.MapFrom(src => src.Status));
 
             // CardDto → Card Entity (geriye dönüş)
-            CreateMap<CardDto, Card>().ReverseMap();
+            CreateMap<CardDto, Card>();
 
             // CreateCardRequest → Card Entity
             CreateMap<CreateCardRequest, Card>()

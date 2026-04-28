@@ -137,7 +137,7 @@ namespace payment_system.Infrastructure.Repositories
             var account = await GetByIdAsync(accountId);
             if (account != null)
             {
-                _db.Accounts.Remove(account);
+               account.IsDeleted = true;
             }
         }
 

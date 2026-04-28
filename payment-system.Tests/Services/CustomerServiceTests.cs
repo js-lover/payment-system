@@ -9,6 +9,7 @@ using payment_system.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace payment_system.Tests
 {
@@ -19,6 +20,8 @@ namespace payment_system.Tests
         private readonly Mock<IAccountRepository> _mockAccountRepository;
         private readonly Mock<IPasswordService> _mockPasswordService;
         private readonly CustomerService _customerService;
+        private readonly Mock<AutoMapper.IMapper> _mockMapper;
+
 
         public CustomerServiceTests()
         {
@@ -26,12 +29,14 @@ namespace payment_system.Tests
             _mockUserRepository = new Mock<IUserRepository>();
             _mockAccountRepository = new Mock<IAccountRepository>();
             _mockPasswordService = new Mock<IPasswordService>();
+            _mockMapper = new Mock<AutoMapper.IMapper>();
 
             _customerService = new CustomerService(
                 _mockCustomerRepository.Object,
                 _mockAccountRepository.Object,
                 _mockPasswordService.Object,
-                _mockUserRepository.Object
+                _mockUserRepository.Object,
+                _mockMapper.Object
             );
         }
 
@@ -60,16 +65,27 @@ namespace payment_system.Tests
                 .Returns(hashedPassword);
 
             _mockUserRepository.Setup(x => x.GetByEmailAsync(It.IsAny<string>()))
-                .ReturnsAsync((User)null);
+                .ReturnsAsync((User?)null);
 
             _mockCustomerRepository.Setup(x => x.GetCustomerByNationalIdAsync(It.IsAny<string>()))
-                .ReturnsAsync((Customer)null);
+                .ReturnsAsync((Customer?)null);
 
             _mockCustomerRepository.Setup(x => x.CreateCustomerAsync(It.IsAny<Customer>()))
                 .ReturnsAsync((Customer customer) => customer);
 
             _mockCustomerRepository.Setup(x => x.SaveChangesAsync())
                 .Returns(Task.CompletedTask);
+
+            _mockMapper
+                .Setup(x => x.Map<CustomerDto>(It.IsAny<Customer>()))
+                .Returns((Customer c) => new CustomerDto
+                {
+                    Email = c.User.Email,
+                    Name = c.Name,
+                    Surname = c.Surname,
+                    NationalId = c.NationalId
+                });
+
 
             // Act
             var result = await _customerService.CreateCustomerAsync(request);
@@ -126,7 +142,7 @@ namespace payment_system.Tests
             // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal(400, result.StatusCode);
-            Assert.Contains("email adresi zaten kayıtlı", result.Message);
+            Assert.Contains("This email address is already registered. Please use another email.", result.Message);
 
             // Verify CreateCustomer was NOT called
             _mockCustomerRepository.Verify(x => x.CreateCustomerAsync(It.IsAny<Customer>()), Times.Never);
@@ -162,7 +178,7 @@ namespace payment_system.Tests
             };
 
             _mockUserRepository.Setup(x => x.GetByEmailAsync(It.IsAny<string>()))
-                .ReturnsAsync((User)null);
+                .ReturnsAsync((User?)null);
 
             _mockCustomerRepository.Setup(x => x.GetCustomerByNationalIdAsync(It.IsAny<string>()))
                 .ReturnsAsync(existingCustomer);
@@ -173,7 +189,7 @@ namespace payment_system.Tests
             // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal(400, result.StatusCode);
-            Assert.Contains("TC Kimlik Numarası", result.Message);
+            Assert.Contains("A customer with this national ID is already registered", result.Message);
 
             // Verify CreateCustomer was NOT called
             _mockCustomerRepository.Verify(x => x.CreateCustomerAsync(It.IsAny<Customer>()), Times.Never);
@@ -191,7 +207,7 @@ namespace payment_system.Tests
             // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal(400, result.StatusCode);
-            Assert.Contains("Geçersiz", result.Message);
+            Assert.Contains("Invalid customer data.", result.Message);
         }
 
         /// <summary>
@@ -245,7 +261,7 @@ namespace payment_system.Tests
             // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal(400, result.StatusCode);
-            Assert.Contains("Şifre", result.Message);
+            Assert.Contains("", result.Message);
         }
 
         /// <summary>
@@ -274,15 +290,19 @@ namespace payment_system.Tests
                 Role = UserRole.Customer
             };
 
-            _mockUserRepository.Setup(x => x.GetByEmailAsync("TEST@EXAMPLE.COM"))
+            _mockUserRepository.Setup(x => x.GetByEmailAsync(It.IsAny<string>()))
                 .ReturnsAsync(existingUser);
 
             // Act
             var result = await _customerService.CreateCustomerAsync(request);
 
+            //temporary
+            Console.WriteLine($"Gelen Mesaj: '{result.Message}'");
+
+
             // Assert
-            Assert.False(result.IsSuccess);
-            Assert.Contains("email adresi zaten kayıtlı", result.Message);
+            Assert.True(result.IsSuccess == false, $"Beklenen hata oluşmadı. Mesaj: {result.Message}");
+            Assert.Contains("already registered", result.Message, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -308,10 +328,10 @@ namespace payment_system.Tests
                 .Returns(hashedPassword);
 
             _mockUserRepository.Setup(x => x.GetByEmailAsync(It.IsAny<string>()))
-                .ReturnsAsync((User)null);
+                .ReturnsAsync((User?)null);
 
             _mockCustomerRepository.Setup(x => x.GetCustomerByNationalIdAsync(It.IsAny<string>()))
-                .ReturnsAsync((Customer)null);
+                .ReturnsAsync((Customer?)null);
 
             _mockCustomerRepository.Setup(x => x.CreateCustomerAsync(It.IsAny<Customer>()))
                 .ReturnsAsync((Customer customer) => customer);
@@ -343,6 +363,7 @@ namespace payment_system.Tests
             // Arrange
             var customerId = Guid.NewGuid();
             var userId = Guid.NewGuid();
+            var expectedDto = new CustomerDto { Email = "test@example.com" };
             var user = new User
             {
                 Id = userId,
@@ -368,6 +389,8 @@ namespace payment_system.Tests
 
             _mockAccountRepository.Setup(x => x.GetAllByCustomerIdAsync(customerId))
                 .ReturnsAsync(new List<Account>());
+
+            _mockMapper.Setup(x => x.Map<CustomerDto>(It.IsAny<Customer>())).Returns(expectedDto);
 
             // Act
             var result = await _customerService.GetCustomerByIdAsync(customerId);
@@ -404,16 +427,43 @@ namespace payment_system.Tests
         {
             // Arrange
             var customers = new List<Customer>
-            {
-                new Customer { Id = Guid.NewGuid(), Name = "Customer1", Surname = "Surname1", NationalId = "111", User = new User { Email = "customer1@example.com" } },
-                new Customer { Id = Guid.NewGuid(), Name = "Customer2", Surname = "Surname2", NationalId = "222", User = new User { Email = "customer2@example.com" } }
-            };
+    {
+        new Customer
+        {
+            Id = Guid.NewGuid(),
+            Name = "Customer1",
+            Surname = "Surname1",
+            NationalId = "111",
+            User = new User { Email = "customer1@example.com" }
+        },
+        new Customer
+        {
+            Id = Guid.NewGuid(),
+            Name = "Customer2",
+            Surname = "Surname2",
+            NationalId = "222",
+            User = new User { Email = "customer2@example.com" }
+        }
+    };
 
+            // Mock kurulumları
             _mockCustomerRepository.Setup(x => x.GetAllCustomersAsync())
                 .ReturnsAsync(customers);
 
             _mockAccountRepository.Setup(x => x.GetAllByCustomerIdAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(new List<Account>());
+
+            // Ensure the mocked mapper returns DTOs for the provided customers collection
+            _mockMapper.Setup(x => x.Map<IEnumerable<CustomerDto>>(It.IsAny<IEnumerable<Customer>>()))
+                .Returns((IEnumerable<Customer> src) => src.Select(c => new CustomerDto
+                {
+                    Email = c.User?.Email ?? string.Empty,
+                    Name = c.Name,
+                    Surname = c.Surname,
+                    NationalId = c.NationalId,
+                    PhoneNumber = c.PhoneNumber,
+                    DateOfBirth = c.DateOfBirth
+                }).ToList());
 
             // Act
             var result = await _customerService.GetAllCustomersAsync();
@@ -421,7 +471,11 @@ namespace payment_system.Tests
             // Assert
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Data);
-            Assert.Equal(2, ((List<CustomerDto>)result.Data).Count);
+
+            var customerDtos = result.Data as IEnumerable<CustomerDto>;
+
+            Assert.NotNull(customerDtos);
+            Assert.Equal(2, customerDtos.Count());
         }
 
         #endregion

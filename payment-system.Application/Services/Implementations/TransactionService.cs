@@ -201,46 +201,7 @@ namespace payment_system.Application.Services.Implementations
                 "Refund transaction created successfully",
                 201);
         }
-
-        /// <summary>
-        /// PURCHASE transaction işlemi - İş mantığı
-        /// Bakiyeyi arttır
-        /// </summary>
-        private async Task<Result<TransactionDto>> ProcessPurchaseTransactionAsync(
-            CreateTransactionRequest request,
-            Account account)
-        {
-            // ===== İŞ MANTTIĞI: BAKIYE GÜNCELLEME =====
-            
-            account.Balance += request.Amount;
-
-            // ===== İŞ MANTTIĞI: TRANSACTION OLUŞTURMA =====
-            
-            var transaction = new Transaction
-            {
-                Id = Guid.NewGuid(),
-                AccountId = request.AccountId,
-                Amount = request.Amount,
-                Currency = request.Currency,
-                TransactionType = request.TransactionType,
-                Description = request.Description,
-                TransactionDate = DateTime.UtcNow,
-                Status = TransactionStatus.Success,
-                ReferenceTransactionId = null
-            };
-
-            // ===== İŞ MANTTIĞI: VERITABANINA KAYDET =====
-            
-            await _transactionRepository.AddAsync(transaction);
-            await _accountRepository.UpdateAsync(account);
-            await _transactionRepository.SaveChangesAsync();
-
-            return Result<TransactionDto>.Success(
-                MapToDto(transaction),
-                "Purchase transaction created successfully",
-                201);
-        }
-
+        
         /// <summary>
         /// Tüm transaction'ları getir - Basit veri erişimi
         /// </summary>

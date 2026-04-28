@@ -162,11 +162,11 @@ namespace payment_system.Application.Services.Implementations
                     CardNumber = request.CardNumber,
                     CardName = request.CardName,
                     ExpirationDate = request.ExpirationDate,
-                    CVC = EncryptCVC(request.CVC), // Encrypt CVC
                     AccountId = request.AccountId,
-                    Status = CardStatus.WaitingForApproval,
+                    Status = CardStatus.Active,
                     CreatedAt = DateTime.UtcNow,
-                    IsDeleted = false
+                    IsDeleted = false,
+                    
                 };
 
                 // Save to database
@@ -281,40 +281,6 @@ namespace payment_system.Application.Services.Implementations
             catch
             {
                 return false;
-            }
-        }
-
-        /// <summary>
-        /// CVC'yi şifrele
-        /// </summary>
-        private string EncryptCVC(string cvc)
-        {
-            try
-            {
-                // Production'da AES encryption kullan
-                // Şimdilik Base64 (PLACEHOLDER)
-                return Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(cvc));
-            }
-            catch
-            {
-                return cvc;
-            }
-        }
-
-        /// <summary>
-        /// CVC'yi deşifrele
-        /// </summary>
-        private string DecryptCVC(string encryptedCvc)
-        {
-            try
-            {
-                // Production'da AES decryption kullan
-                // Şimdilik Base64 (PLACEHOLDER)
-                return System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(encryptedCvc));
-            }
-            catch
-            {
-                return encryptedCvc;
             }
         }
     }

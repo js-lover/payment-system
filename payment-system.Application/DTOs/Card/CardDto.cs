@@ -11,22 +11,12 @@ namespace payment_system.Application.DTOs.Card
     public class CardDto
     {
         public Guid Id { get; set; }
-        
-        /// <summary>
-        /// Masked card number: "1234 **** **** 6789"
-        /// </summary>
         public string CardNumber { get; set; } = null!;
-        
         public string CardName { get; set; } = null!;
-        
-        public DateTime ExpirationDate { get; set; }
-        
+        public string ExpirationDate { get; set; } = null!;
         public Guid AccountId { get; set; }
-        
         public CardStatus Status { get; set; }
-        
         public DateTime CreatedAt { get; set; }
-        
         public DateTime? UpdatedAt { get; set; }
     }
 }
